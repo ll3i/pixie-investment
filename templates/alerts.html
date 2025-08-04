@@ -1,0 +1,31 @@
+{% extends 'layout.html' %}
+{% block title %}위험 신호/경고 알림{% endblock %}
+{% block content %}
+<div class="container alerts-container">
+    <h1>위험 신호/경고 알림</h1>
+    <div id="alerts-result" class="card mt-3">
+        <div class="card-header">최근 감지된 위험 신호/경고</div>
+        <div class="card-body">
+            <pre id="alerts-context" style="white-space:pre-wrap;"></pre>
+        </div>
+    </div>
+    <button class="btn btn-outline-danger mt-3" id="refresh-alerts">새로고침</button>
+</div>
+<script>
+function loadAlerts() {
+    $.get('/api/alerts', function(res) {
+        if (res.success) {
+            $('#alerts-context').text(res.alerts_context);
+        } else {
+            $('#alerts-context').text('위험 신호/경고 정보를 불러올 수 없습니다.');
+        }
+    });
+}
+$(function() {
+    loadAlerts();
+    $('#refresh-alerts').on('click', function() {
+        loadAlerts();
+    });
+});
+</script>
+{% endblock %} 

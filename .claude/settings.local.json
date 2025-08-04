@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install:*)",
+      "Bash(python -m pip install:*)",
+      "Bash(python:*)",
+      "Bash(move stock_evaluation_results.csv stock_evaluation_results_backup.csv)",
+      "Bash(move stock_evaluation_results_complete.csv stock_evaluation_results.csv)",
+      "Bash(ren:*)",
+      "Bash(copy:*)",
+      "Bash(cp:*)",
+      "Bash(ls:*)",
+      "Bash(dir:*)",
+      "Bash(timeout:*)",
+      "mcp__github__create_repository",
+      "Bash(mkdir:*)",
+      "Bash(true)",
+      "mcp__github__search_repositories",
+      "Bash(git init:*)"
+    ],
+    "deny": []
+  }
+}

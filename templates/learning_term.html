@@ -1,0 +1,409 @@
+{% extends "layout.html" %}
+
+{% block title %}단어 학습 - {{ term.korean }} - Pixie{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 단어 학습 페이지 스타일 */
+    body {
+        background: #F8F9FA;
+    }
+
+    .term-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    /* 브레드크럼 */
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 32px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .breadcrumb a {
+        color: #1454FE;
+        text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    /* 메인 카드 */
+    .term-card {
+        background: white;
+        border-radius: 24px;
+        padding: 48px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        margin-bottom: 32px;
+    }
+
+    /* 헤더 섹션 */
+    .term-header {
+        text-align: center;
+        margin-bottom: 48px;
+    }
+
+    .term-category {
+        display: inline-block;
+        background: #E8EBFF;
+        color: #1454FE;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 16px;
+    }
+
+    .term-title {
+        font-size: 48px;
+        font-weight: 700;
+        color: #000;
+        margin-bottom: 8px;
+    }
+
+    .term-subtitle {
+        font-size: 24px;
+        color: #666;
+        margin-bottom: 8px;
+    }
+
+    .term-korean {
+        font-size: 32px;
+        color: #1454FE;
+        font-weight: 600;
+    }
+
+    /* 내용 섹션 */
+    .term-section {
+        margin-bottom: 40px;
+    }
+
+    .section-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #000;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-icon {
+        width: 24px;
+        height: 24px;
+        background: #1454FE;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 14px;
+    }
+
+    .section-content {
+        background: #F8F9FA;
+        border-radius: 16px;
+        padding: 24px;
+        font-size: 16px;
+        line-height: 1.8;
+        color: #333;
+    }
+
+    .formula-box {
+        background: #E8EBFF;
+        border-left: 4px solid #1454FE;
+        padding: 20px 24px;
+        border-radius: 8px;
+        font-family: 'Courier New', monospace;
+        font-size: 18px;
+        font-weight: 600;
+        color: #1454FE;
+        text-align: center;
+        margin: 16px 0;
+    }
+
+    .example-box {
+        background: #FFF9E6;
+        border-left: 4px solid #FFA500;
+        padding: 20px 24px;
+        border-radius: 8px;
+        margin: 16px 0;
+    }
+
+    /* 관련 용어 */
+    .related-terms {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+    }
+
+    .related-term {
+        background: #E8EBFF;
+        color: #1454FE;
+        padding: 8px 16px;
+        border-radius: 20px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .related-term:hover {
+        background: #1454FE;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* 네비게이션 버튼 */
+    .term-navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 48px;
+        padding-top: 32px;
+        border-top: 1px solid #E5E5E5;
+    }
+
+    .nav-btn {
+        background: #1454FE;
+        color: white;
+        padding: 14px 32px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .nav-btn:hover {
+        background: #0B3DCF;
+        transform: translateY(-2px);
+    }
+
+    .nav-btn.secondary {
+        background: white;
+        color: #1454FE;
+        border: 2px solid #1454FE;
+    }
+
+    .nav-btn.secondary:hover {
+        background: #E8EBFF;
+    }
+
+    .complete-btn {
+        background: #4CAF50;
+    }
+
+    .complete-btn:hover {
+        background: #45a049;
+    }
+
+    /* 진행률 표시 */
+    .progress-info {
+        text-align: center;
+        color: #666;
+        font-size: 14px;
+    }
+
+    /* 반응형 */
+    @media (max-width: 768px) {
+        .term-card {
+            padding: 32px 24px;
+        }
+
+        .term-title {
+            font-size: 36px;
+        }
+
+        .term-korean {
+            font-size: 24px;
+        }
+
+        .term-navigation {
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .nav-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="term-container">
+    <!-- 브레드크럼 -->
+    <nav class="breadcrumb">
+        <a href="/">홈</a>
+        <span>›</span>
+        <a href="/learning">투자 학습</a>
+        <span>›</span>
+        <span>단어 학습</span>
+    </nav>
+
+    <!-- 메인 카드 -->
+    <div class="term-card">
+        <!-- 헤더 -->
+        <div class="term-header">
+            <div class="term-category">{{ term.category }} • {{ term.difficulty }}</div>
+            <h1 class="term-title">{{ term.term }}</h1>
+            <div class="term-subtitle">{{ term.full_name }}</div>
+            <div class="term-korean">{{ term.korean }}</div>
+        </div>
+
+        <!-- 정의 -->
+        <div class="term-section">
+            <h2 class="section-title">
+                <span class="section-icon">📚</span>
+                정의
+            </h2>
+            <div class="section-content">
+                {{ term.definition }}
+            </div>
+        </div>
+
+        <!-- 공식 -->
+        {% if term.formula %}
+        <div class="term-section">
+            <h2 class="section-title">
+                <span class="section-icon">📐</span>
+                계산 공식
+            </h2>
+            <div class="formula-box">
+                {{ term.formula }}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 예시 -->
+        {% if term.example %}
+        <div class="term-section">
+            <h2 class="section-title">
+                <span class="section-icon">💡</span>
+                예시
+            </h2>
+            <div class="example-box">
+                {{ term.example }}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 활용 방법 -->
+        <div class="term-section">
+            <h2 class="section-title">
+                <span class="section-icon">🎯</span>
+                활용 방법
+            </h2>
+            <div class="section-content">
+                {{ term.usage }}
+            </div>
+        </div>
+
+        <!-- 관련 용어 -->
+        {% if term.related_terms %}
+        <div class="term-section">
+            <h2 class="section-title">
+                <span class="section-icon">🔗</span>
+                관련 용어
+            </h2>
+            <div class="related-terms">
+                {% for related in term.related_terms %}
+                <a href="/learning/term/{{ related }}" class="related-term">{{ related }}</a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 네비게이션 -->
+        <div class="term-navigation">
+            <a href="/learning" class="nav-btn secondary">
+                <i class="fas fa-arrow-left"></i>
+                목록으로
+            </a>
+            
+            <div class="progress-info">
+                <span id="progress-text">학습 진행률: 0%</span>
+            </div>
+
+            <button class="nav-btn complete-btn" onclick="completeTerm({{ term.id }}, this)">
+                학습 완료
+                <i class="fas fa-check"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// 페이지 로드 시 진행률 업데이트
+document.addEventListener('DOMContentLoaded', function() {
+    updateProgress();
+});
+
+// 학습 완료 처리
+function completeTerm(termId, btnElement) {
+    console.log('completeTerm called with termId:', termId);
+    
+    fetch('/api/learning/complete-term', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ term_id: termId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // 완료 표시
+            btnElement.textContent = '학습 완료됨';
+            btnElement.disabled = true;
+            btnElement.style.opacity = '0.6';
+            
+            // 진행률 업데이트
+            updateProgress();
+            
+            // 페이지 이동 로직
+            console.log('Redirecting based on termId:', termId);
+            setTimeout(() => {
+                if (termId >= 5) {
+                    // term 5 이상은 메인 학습 페이지로 이동
+                    console.log('Redirecting to /learning');
+                    window.location.href = '/learning';
+                } else {
+                    // term 1-4는 단어 목록 페이지로 이동
+                    console.log('Redirecting to /learning/words');
+                    window.location.href = '/learning/words';
+                }
+            }, 1000);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('학습 완료 처리 중 오류가 발생했습니다.');
+    });
+}
+
+// 진행률 업데이트
+function updateProgress() {
+    fetch('/api/learning/progress')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const progress = data.progress;
+                document.getElementById('progress-text').textContent = 
+                    `학습 진행률: ${progress.progress_percentage}%`;
+            }
+        });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,962 @@
+{% extends "layout.html" %}
+
+{% block title %}투자 성향 분석 결과{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #2563eb;
+        --primary-dark: #1e40af;
+        --primary-light: #3b82f6;
+        --green: #10b981;
+        --yellow: #fbbf24;
+        --orange: #f97316;
+        --red: #ef4444;
+        --blue-gray: #475569;
+        --light-gray: #f1f5f9;
+        --border-radius: 16px;
+        --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+        --hover-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+    
+    body {
+        font-family: 'Pretendard Variable', 'Noto Sans KR', sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #1e293b;
+        background-color: #f8fafc;
+        line-height: 1.6;
+    }
+    
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+    
+    .result-container {
+        padding: 3rem 0;
+    }
+    
+    /* 헤더 섹션 */
+    .result-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .result-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-fill-color: transparent;
+    }
+    
+    .result-header p {
+        font-size: 1.2rem;
+        color: var(--blue-gray);
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    
+    /* 카드 공통 스타일 */
+    .card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        margin-bottom: 2.5rem;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--hover-shadow);
+    }
+    
+    .card-header {
+        padding: 2rem;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        position: relative;
+    }
+    
+    .card-header h2 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    
+    .card-header p {
+        margin-top: 0.5rem;
+        margin-bottom: 0;
+        opacity: 0.9;
+    }
+    
+    .card-body {
+        padding: 2rem;
+    }
+    
+    /* 투자자 프로필 */
+    .profile-card {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 2.5rem;
+        align-items: center;
+    }
+    
+    .profile-icon {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2);
+    }
+    
+    .profile-icon i {
+        font-size: 2.5rem;
+        color: white;
+    }
+    
+    .profile-content h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        color: var(--primary-dark);
+    }
+    
+    .profile-type {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        background: var(--light-gray);
+        border-radius: 2rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--primary-dark);
+        margin-bottom: 1rem;
+    }
+    
+    .profile-desc {
+        color: var(--blue-gray);
+        margin: 0;
+        line-height: 1.7;
+    }
+    
+    /* 점수 섹션 */
+    .section-title {
+        position: relative;
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin: 0 0 2rem 0;
+        padding-bottom: 0.8rem;
+        color: var(--primary-dark);
+    }
+    
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(to right, var(--primary-color), var(--primary-light));
+        border-radius: 2px;
+    }
+    
+    .scores-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+    
+    .score-item {
+        background-color: var(--light-gray);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .score-item:hover {
+        background-color: white;
+        box-shadow: var(--card-shadow);
+        transform: translateY(-5px);
+    }
+    
+    .score-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.2rem;
+    }
+    
+    .score-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .score-icon i {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+    }
+    
+    .score-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #1e293b;
+    }
+    
+    .score-bar {
+        height: 8px;
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+    
+    .score-fill {
+        height: 100%;
+        border-radius: 4px;
+        background: linear-gradient(to right, var(--primary-color), var(--primary-light));
+        transition: width 1.5s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    
+    .score-labels {
+        display: flex;
+        justify-content: space-between;
+        color: var(--blue-gray);
+        font-size: 0.9rem;
+    }
+    
+    .score-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        padding: 0.2rem 0.5rem;
+        background-color: white;
+        border-radius: 6px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* 투자 유형 스펙트럼 */
+    .risk-spectrum {
+        padding: 2.5rem;
+        background-color: white;
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+        margin-bottom: 2.5rem;
+    }
+    
+    .spectrum-title {
+        text-align: center;
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        color: var(--primary-dark);
+    }
+    
+    .spectrum-bar {
+        height: 10px;
+        background: linear-gradient(to right, 
+            var(--green), 
+            #a3e635, 
+            var(--yellow), 
+            var(--orange), 
+            var(--red)
+        );
+        border-radius: 5px;
+        position: relative;
+        margin-bottom: 3rem;
+    }
+    
+    .spectrum-marker {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        background: white;
+        border: 4px solid var(--primary-color);
+        border-radius: 50%;
+        top: -10px;
+        transform: translateX(-50%);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        z-index: 2;
+        transition: left 1.5s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    
+    .spectrum-marker::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 8px;
+        border-style: solid;
+        border-color: var(--primary-color) transparent transparent;
+    }
+    
+    .spectrum-labels {
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .spectrum-label {
+        text-align: center;
+        font-size: 1rem;
+        font-weight: 600;
+        width: 20%;
+        padding-top: 1.5rem;
+        position: relative;
+    }
+    
+    .spectrum-label::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 2px;
+        height: 10px;
+        background-color: rgba(0, 0, 0, 0.2);
+    }
+    
+    .spectrum-label:nth-child(1) { color: var(--green); }
+    .spectrum-label:nth-child(2) { color: #65a30d; }
+    .spectrum-label:nth-child(3) { color: #ca8a04; }
+    .spectrum-label:nth-child(4) { color: #ea580c; }
+    .spectrum-label:nth-child(5) { color: #dc2626; }
+    
+    .current-type {
+        text-align: center;
+        margin-top: 1rem;
+    }
+    
+    .current-type span {
+        display: inline-block;
+        padding: 0.5rem 1.5rem;
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: 600;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        box-shadow: 0 5px 15px rgba(37, 99, 235, 0.2);
+    }
+    
+    /* 포트폴리오 추천 */
+    .portfolio-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+    
+    .portfolio-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .portfolio-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--hover-shadow);
+        border-color: var(--primary-light);
+    }
+    
+    .portfolio-header {
+        padding: 1.5rem;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+    }
+    
+    .portfolio-header h3 {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 600;
+    }
+    
+    .portfolio-body {
+        padding: 1.5rem;
+    }
+    
+    .portfolio-desc {
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        color: var(--blue-gray);
+    }
+    
+    .asset-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        background-color: var(--light-gray);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .asset-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 1.2rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .asset-item:last-child {
+        border-bottom: none;
+    }
+    
+    .asset-name {
+        font-weight: 500;
+        color: #1e293b;
+    }
+    
+    .asset-allocation {
+        font-weight: 600;
+        padding: 0.3rem 0.8rem;
+        background-color: white;
+        border-radius: 20px;
+        color: var(--primary-dark);
+        font-size: 0.9rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* 예측 섹션 */
+    .predictions-section {
+        margin-bottom: 2.5rem;
+    }
+    
+    .predictions-container {
+        border-radius: 16px;
+        overflow: hidden;
+        background-color: white;
+        box-shadow: var(--card-shadow);
+    }
+    
+    .prediction-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+    
+    .prediction-card {
+        border-radius: 12px;
+        overflow: hidden;
+        background-color: var(--light-gray);
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .prediction-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        background-color: white;
+    }
+    
+    .prediction-header {
+        padding: 1rem 1.5rem;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .prediction-header h4 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+    
+    .stock-code {
+        font-size: 0.9rem;
+        padding: 0.2rem 0.6rem;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+    }
+    
+    .prediction-image img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    .prediction-details {
+        padding: 1.5rem;
+    }
+    
+    .prediction-stats {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1.2rem;
+    }
+    
+    .prediction-stat {
+        text-align: center;
+    }
+    
+    .stat-value {
+        display: block;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: var(--blue-gray);
+    }
+    
+    .prediction-desc {
+        margin: 0;
+        color: #1e293b;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+    
+    /* 액션 버튼 */
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2.5rem;
+    }
+    
+    .action-button {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+    }
+    
+    .primary-button {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+    }
+    
+    .primary-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(37, 99, 235, 0.3);
+    }
+    
+    .secondary-button {
+        background-color: white;
+        color: var(--primary-dark);
+        border: 2px solid #e2e8f0;
+    }
+    
+    .secondary-button:hover {
+        background-color: var(--light-gray);
+        border-color: #cbd5e1;
+        transform: translateY(-3px);
+    }
+    
+    /* 로딩 & 에러 상태 */
+    .loading-container {
+        text-align: center;
+        padding: 3rem;
+    }
+    
+    .loading-spinner {
+        display: inline-block;
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(37, 99, 235, 0.1);
+        border-radius: 50%;
+        border-top-color: var(--primary-color);
+        animation: spin 1s ease-in-out infinite;
+        margin-bottom: 1.5rem;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .error-container {
+        background-color: #fee2e2;
+        border-left: 4px solid #ef4444;
+        color: #b91c1c;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin: 1.5rem;
+    }
+    
+    .error-container h4 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+    }
+    
+    .error-container p {
+        margin-bottom: 0;
+    }
+    
+    /* 애니메이션 */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in {
+        animation: fadeIn 1s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    
+    /* 반응형 디자인 */
+    @media (max-width: 768px) {
+        .profile-card {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .section-title::after {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .prediction-stats {
+            flex-wrap: wrap;
+        }
+        
+        .prediction-stat {
+            width: 50%;
+            margin-bottom: 1rem;
+        }
+    }
+</style>
+<!-- jQuery를 반드시 먼저 import -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container result-container">
+    <div class="result-header fade-in">
+        <h1>투자 성향 분석 결과</h1>
+        <p>귀하의 설문 응답을 분석한 맞춤형 투자 성향과 최적의 포트폴리오 추천 정보입니다.</p>
+    </div>
+    
+    <!-- 내 투자 성향/분석 결과 섹션 -->
+    <div class="card fade-in mb-4">
+        <div class="card-header">
+            <h2>내 투자 성향/분석 결과</h2>
+            <p class="mb-0" style="font-size:0.98rem;color:#64748b;">설문 기반 투자 성향, 점수, 상세 분석을 실시간으로 확인할 수 있습니다.</p>
+        </div>
+        <div class="card-body" id="profile-body">
+            <div id="profile-loading" class="text-center my-3"><div class="spinner-border text-primary"></div></div>
+            <div id="profile-content" style="display:none;"></div>
+            <div id="profile-empty" class="text-muted mt-2" style="display:none;">저장된 투자 성향/분석 결과가 없습니다.</div>
+        </div>
+    </div>
+
+    <div class="card fade-in">
+        <div class="card-header">
+            <h2>맞춤형 포트폴리오 추천</h2>
+            <p>귀하의 투자 성향에 최적화된 자산 배분 전략입니다</p>
+        </div>
+        <div class="card-body">
+            <div class="portfolio-grid">
+                {% for pf in portfolio %}
+                <div class="portfolio-card">
+                    <div class="portfolio-header">
+                        <h3>{{ pf.name }}</h3>
+                    </div>
+                    <div class="portfolio-body">
+                        <p class="portfolio-desc">
+                            {{ pf.description }}
+                        </p>
+                        <ul class="asset-list">
+                            {% for asset in pf.assets %}
+                            <li class="asset-item">
+                                <span class="asset-name">{{ asset.name }}</span>
+                                <span class="asset-allocation">{{ asset.allocation }}%</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <!-- 자산군 비중 파이차트 -->
+                        <canvas id="portfolioChart{{ loop.index }}" width="280" height="280" style="max-width:320px;margin:2rem auto 1rem;display:block;"></canvas>
+                        <!-- 추천 근거(설명) -->
+                        {% if loop.first and portfolio_reason %}
+                        <div class="mt-2" style="color:#475569;font-size:0.98rem;">
+                            <i class="fas fa-info-circle me-1"></i> <b>추천 근거:</b> {{ portfolio_reason }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="predictions-section">
+                <h3 class="section-title">추천 종목 시계열 예측</h3>
+                <div id="portfolio-predictions" class="predictions-container">
+                    <div class="loading-container">
+                        <div class="loading-spinner"></div>
+                        <p>예측 데이터를 불러오는 중입니다...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-button primary-button">
+                    <i class="fas fa-robot"></i>
+                    <span>MINERVA와 상담하기</span>
+                </button>
+                <button class="action-button secondary-button">
+                    <i class="fas fa-download"></i>
+                    <span>결과 다운로드</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 최근 포트폴리오 추천/분석 이력 섹션 -->
+    <div class="card mt-4 fade-in">
+        <div class="card-header">
+            <h3>최근 포트폴리오 추천/분석 이력</h3>
+            <p class="mb-0" style="font-size:0.98rem;color:#64748b;">최대 5개까지 최근 추천/분석 이력을 확인할 수 있습니다.</p>
+        </div>
+        <div class="card-body" id="portfolio-history-body">
+            <div id="portfolio-history-loading" class="text-center my-3"><div class="spinner-border text-primary"></div></div>
+            <div id="portfolio-history-list" class="row"></div>
+            <div id="portfolio-history-empty" class="text-muted mt-2" style="display:none;">저장된 추천/분석 이력이 없습니다.</div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const USER_ID = "{{ user_id }}";
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 스코어 바 애니메이션
+        setTimeout(() => {
+            document.querySelectorAll('.score-fill').forEach(fill => {
+                fill.style.width = fill.style.width;
+            });
+        }, 500);
+        
+        // 버튼 클릭 이벤트
+        document.querySelector('.primary-button').addEventListener('click', function() {
+            window.location.href = '/minerva';
+        });
+        
+        document.querySelector('.secondary-button').addEventListener('click', function() {
+            // PDF 다운로드 로직 구현 (예시)
+            alert('투자 성향 분석 결과가 다운로드됩니다.');
+        });
+        
+        // 예측 데이터 가져오기
+        fetch('/api/predictions')
+            .then(response => response.json())
+            .then(data => {
+                const predictionsContainer = document.getElementById('portfolio-predictions');
+                
+                if (data.success && data.predictions && data.predictions.tickers && data.predictions.tickers.length > 0) {
+                    // 예측 데이터가 있는 경우
+                    predictionsContainer.innerHTML = ''; // 로딩 메시지 제거
+                    
+                    const predictionCards = document.createElement('div');
+                    predictionCards.className = 'prediction-cards';
+                    
+                    // 각 종목별 예측 카드 추가
+                    data.predictions.tickers.forEach(ticker => {
+                        const predictionCard = document.createElement('div');
+                        predictionCard.className = 'prediction-card';
+                        predictionCard.innerHTML = `
+                            <div class="prediction-header">
+                                <h4>${ticker.name}</h4>
+                                <span class="stock-code">${ticker.code}</span>
+                            </div>
+                            <div class="prediction-image">
+                                <img src="/static/images/${ticker.code}_prediction.png" alt="${ticker.name} 가격 예측" loading="lazy" />
+                            </div>
+                            <div class="prediction-details">
+                                <div class="prediction-stats">
+                                    <div class="prediction-stat">
+                                        <span class="stat-value">${ticker.prediction?.expected_return || '?'}%</span>
+                                        <span class="stat-label">예상 수익률</span>
+                                    </div>
+                                    <div class="prediction-stat">
+                                        <span class="stat-value">${ticker.prediction?.confidence || '?'}%</span>
+                                        <span class="stat-label">신뢰도</span>
+                                    </div>
+                                    <div class="prediction-stat">
+                                        <span class="stat-value">${ticker.prediction?.horizon || '3'}개월</span>
+                                        <span class="stat-label">예측 기간</span>
+                                    </div>
+                                </div>
+                                <p class="prediction-desc">
+                                    ${ticker.prediction?.analysis || '이 종목은 현재 기술적 지표와 AI 분석 기반으로 향후 상승 가능성이 있습니다.'}
+                                </p>
+                            </div>
+                        `;
+                        predictionCards.appendChild(predictionCard);
+                    });
+                    
+                    predictionsContainer.appendChild(predictionCards);
+                } else {
+                    // 예측 데이터가 없는 경우
+                    predictionsContainer.innerHTML = `
+                        <div class="error-container">
+                            <h4>데이터를 불러올 수 없습니다</h4>
+                            <p>현재 포트폴리오 예측 데이터를 불러올 수 없습니다. 나중에 다시 시도해주세요.</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('예측 데이터 로드 실패:', error);
+                const predictionsContainer = document.getElementById('portfolio-predictions');
+                predictionsContainer.innerHTML = `
+                    <div class="error-container">
+                        <h4>오류가 발생했습니다</h4>
+                        <p>예측 데이터를 불러오는 중 문제가 발생했습니다. 나중에 다시 시도해주세요.</p>
+                    </div>
+                `;
+            });
+
+        // 포트폴리오 파이차트 렌더링
+        {% for pf in portfolio %}
+        (function() {
+            const ctx = document.getElementById('portfolioChart{{ loop.index }}').getContext('2d');
+            const data = {
+                labels: [{% for asset in pf.assets %}'{{ asset.name }}',{% endfor %}],
+                datasets: [{
+                    data: [{% for asset in pf.assets %}{{ asset.allocation }},{% endfor %}],
+                    backgroundColor: [
+                        '#2563eb','#10b981','#fbbf24','#ef4444','#6366f1','#f97316','#a3e635','#475569','#3b82f6','#1e40af'
+                    ],
+                    borderWidth: 1
+                }]
+            };
+            new Chart(ctx, {
+                type: 'pie',
+                data: data,
+                options: {
+                    plugins: {
+                        legend: {position: 'bottom'},
+                        tooltip: {enabled: true}
+                    }
+                }
+            });
+        })();
+        {% endfor %}
+    });
+
+    // 투자 성향/분석 결과 불러오기
+    function loadProfile() {
+        $('#profile-loading').show();
+        $('#profile-empty').hide();
+        $('#profile-content').hide();
+        fetch('/api/profile?user_id=' + USER_ID)
+            .then(res => res.json())
+            .then(data => {
+                $('#profile-loading').hide();
+                if (data.success && data.profile) {
+                    let profile = data.profile;
+                    if (typeof profile === 'string') {
+                        try { profile = JSON.parse(profile); } catch(e) { profile = {}; }
+                    }
+                    let html = '';
+                    if (profile.scores) {
+                        html += '<div class="mb-2"><b>점수 요약</b><ul>';
+                        Object.entries(profile.scores).forEach(([k,v]) => {
+                            html += `<li>${k}: <b>${v}</b></li>`;
+                        });
+                        html += '</ul></div>';
+                    }
+                    if (profile.overall_analysis) {
+                        html += `<div class="mb-2"><b>종합 분석:</b> ${profile.overall_analysis}</div>`;
+                    }
+                    if (profile.detailed_analysis) {
+                        html += '<div class="mb-2"><b>상세 분석</b><ul>';
+                        Object.entries(profile.detailed_analysis).forEach(([k,v]) => {
+                            html += `<li>${k}: ${v}</li>`;
+                        });
+                        html += '</ul></div>';
+                    }
+                    $('#profile-content').html(html).show();
+                } else {
+                    $('#profile-empty').show();
+                }
+            })
+            .catch(err => {
+                $('#profile-loading').hide();
+                $('#profile-empty').text('투자 성향/분석 결과를 불러오지 못했습니다.').show();
+            });
+    }
+    $(function(){
+        loadProfile();
+    });
+
+    // 포트폴리오 추천/분석 이력 불러오기
+    function loadPortfolioHistory() {
+        $('#portfolio-history-loading').show();
+        $('#portfolio-history-empty').hide();
+        $('#portfolio-history-list').empty();
+        fetch('/api/portfolio-history')
+            .then(res => res.json())
+            .then(data => {
+                $('#portfolio-history-loading').hide();
+                if (data.success && data.history && data.history.length > 0) {
+                    data.history.forEach(function(item, idx) {
+                        const created = item.created_at ? new Date(item.created_at).toLocaleString() : '-';
+                        const pf = item.portfolio_analysis || {};
+                        const pfList = (item.ticker_predictions ? Object.keys(item.ticker_predictions).join(', ') : 'N/A');
+                        const summary = pf.recommendation ? pf.recommendation : (pf.risk_assessment || '');
+                        const expected = pf.expected_return !== undefined ? `예상수익률: ${pf.expected_return.toFixed(2)}%` : '';
+                        const html = `
+                    <div class="col-md-6 mb-3">
+                        <div class="history-card card shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-secondary">#${idx+1}</span>
+                                    <span class="text-muted" style="font-size:0.95rem;">${created}</span>
+                                </div>
+                                <div style="font-size:1.05rem;font-weight:500;">추천 종목: <span style="color:#2563eb;">${pfList}</span></div>
+                                <div class="mt-2" style="font-size:0.97rem;">${summary} ${expected}</div>
+                            </div>
+                        </div>
+                    </div>`;
+                        $('#portfolio-history-list').append(html);
+                    });
+                } else {
+                    $('#portfolio-history-empty').show();
+                }
+            })
+            .catch(err => {
+                $('#portfolio-history-loading').hide();
+                $('#portfolio-history-empty').text('이력 데이터를 불러오지 못했습니다.').show();
+            });
+    }
+    $(function(){
+        loadPortfolioHistory();
+    });
+</script>
+{% endblock %} 

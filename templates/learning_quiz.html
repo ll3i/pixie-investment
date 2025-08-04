@@ -1,0 +1,581 @@
+{% extends "layout.html" %}
+
+{% block title %}학습 퀴즈 - Pixie{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 퀴즈 페이지 스타일 */
+    body {
+        background: #F8F9FA;
+    }
+
+    .quiz-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    /* 퀴즈 헤더 */
+    .quiz-header {
+        background: white;
+        border-radius: 20px;
+        padding: 32px;
+        margin-bottom: 32px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .quiz-level {
+        display: inline-block;
+        background: #E8EBFF;
+        color: #1454FE;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 16px;
+    }
+
+    .quiz-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #000;
+        margin-bottom: 16px;
+    }
+
+    .quiz-progress {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .progress-bar {
+        flex: 1;
+        height: 8px;
+        background: #E5E5E5;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: #1454FE;
+        transition: width 0.3s ease;
+    }
+
+    .progress-text {
+        font-size: 16px;
+        font-weight: 600;
+        color: #666;
+    }
+
+    /* 퀴즈 카드 */
+    .quiz-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 32px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .question-number {
+        color: #1454FE;
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 16px;
+    }
+
+    .question-text {
+        font-size: 24px;
+        font-weight: 600;
+        color: #000;
+        margin-bottom: 32px;
+        line-height: 1.6;
+    }
+
+    /* 선택지 */
+    .options-container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .option-btn {
+        background: #F8F9FA;
+        border: 2px solid #E5E5E5;
+        border-radius: 16px;
+        padding: 20px 24px;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 18px;
+        color: #333;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .option-btn:hover {
+        background: #E8EBFF;
+        border-color: #1454FE;
+        transform: translateX(8px);
+    }
+
+    .option-btn.selected {
+        background: #E8EBFF;
+        border-color: #1454FE;
+        color: #1454FE;
+        font-weight: 600;
+    }
+
+    .option-btn.correct {
+        background: #E8F5E9;
+        border-color: #4CAF50;
+        color: #2E7D32;
+    }
+
+    .option-btn.incorrect {
+        background: #FFEBEE;
+        border-color: #F44336;
+        color: #C62828;
+    }
+
+    .option-btn.disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    .option-number {
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        background: #1454FE;
+        color: white;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 32px;
+        font-weight: 600;
+        margin-right: 12px;
+    }
+
+    /* 설명 박스 */
+    .explanation-box {
+        background: #FFF9E6;
+        border-left: 4px solid #FFA500;
+        border-radius: 8px;
+        padding: 20px 24px;
+        margin-top: 24px;
+        display: none;
+    }
+
+    .explanation-box.show {
+        display: block;
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .explanation-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #F57C00;
+        margin-bottom: 8px;
+    }
+
+    .explanation-text {
+        font-size: 16px;
+        line-height: 1.6;
+        color: #666;
+    }
+
+    /* 액션 버튼 */
+    .quiz-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 32px;
+    }
+
+    .action-btn {
+        background: #1454FE;
+        color: white;
+        padding: 14px 32px;
+        border-radius: 12px;
+        border: none;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .action-btn:hover {
+        background: #0B3DCF;
+        transform: translateY(-2px);
+    }
+
+    .action-btn:disabled {
+        background: #CCCCCC;
+        cursor: not-allowed;
+    }
+
+    .action-btn.secondary {
+        background: white;
+        color: #1454FE;
+        border: 2px solid #1454FE;
+    }
+
+    .action-btn.secondary:hover {
+        background: #E8EBFF;
+    }
+
+    /* 결과 화면 */
+    .quiz-result {
+        background: white;
+        border-radius: 20px;
+        padding: 48px;
+        text-align: center;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .result-icon {
+        width: 120px;
+        height: 120px;
+        background: #E8EBFF;
+        border-radius: 50%;
+        margin: 0 auto 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 60px;
+    }
+
+    .result-title {
+        font-size: 36px;
+        font-weight: 700;
+        color: #000;
+        margin-bottom: 16px;
+    }
+
+    .result-score {
+        font-size: 48px;
+        font-weight: 700;
+        color: #1454FE;
+        margin-bottom: 24px;
+    }
+
+    .result-message {
+        font-size: 18px;
+        color: #666;
+        margin-bottom: 32px;
+        line-height: 1.6;
+    }
+
+    /* 반응형 */
+    @media (max-width: 768px) {
+        .quiz-container {
+            padding: 0 16px;
+        }
+
+        .quiz-card {
+            padding: 24px;
+        }
+
+        .question-text {
+            font-size: 20px;
+        }
+
+        .option-btn {
+            font-size: 16px;
+            padding: 16px 20px;
+        }
+
+        .quiz-actions {
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .action-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="quiz-container">
+    <!-- 퀴즈 헤더 -->
+    <div class="quiz-header">
+        <div class="quiz-level" id="quiz-level">초급</div>
+        <h1 class="quiz-title">투자 기초 퀴즈</h1>
+        
+        <div class="quiz-progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+            <span class="progress-text" id="progress-text">0 / 5</span>
+        </div>
+    </div>
+
+    <!-- 퀴즈 카드 -->
+    <div class="quiz-card" id="quiz-card">
+        <div class="question-number" id="question-number">문제 1</div>
+        <div class="question-text" id="question-text">
+            문제를 불러오는 중...
+        </div>
+        
+        <div class="options-container" id="options-container">
+            <!-- 옵션들이 동적으로 추가됨 -->
+        </div>
+
+        <div class="explanation-box" id="explanation-box">
+            <div class="explanation-title">해설</div>
+            <div class="explanation-text" id="explanation-text"></div>
+        </div>
+
+        <div class="quiz-actions">
+            <button class="action-btn secondary" onclick="previousQuestion()" id="prev-btn" style="display: none;">
+                <i class="fas fa-arrow-left"></i>
+                이전 문제
+            </button>
+            
+            <button class="action-btn" onclick="submitAnswer()" id="submit-btn" disabled>
+                답안 제출
+            </button>
+            
+            <button class="action-btn" onclick="nextQuestion()" id="next-btn" style="display: none;">
+                다음 문제
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 결과 화면 -->
+    <div class="quiz-result" id="quiz-result" style="display: none;">
+        <div class="result-icon">🎉</div>
+        <h2 class="result-title">퀴즈 완료!</h2>
+        <div class="result-score" id="result-score">0/5</div>
+        <p class="result-message" id="result-message">
+            수고하셨습니다! 투자 학습을 계속해서 실력을 향상시켜보세요.
+        </p>
+        
+        <div class="quiz-actions">
+            <a href="/learning" class="action-btn secondary">
+                학습 메인으로
+            </a>
+            <button class="action-btn" onclick="retakeQuiz()">
+                다시 도전하기
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let questions = [];
+let currentQuestionIndex = 0;
+let selectedAnswer = null;
+let answers = [];
+let quizLevel = 'beginner';
+
+// 페이지 로드 시 퀴즈 시작
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    quizLevel = urlParams.get('level') || '초급';
+    document.getElementById('quiz-level').textContent = quizLevel;
+    
+    loadQuestions();
+});
+
+// 문제 불러오기
+function loadQuestions() {
+    fetch(`/api/learning/quiz?level=${quizLevel}&count=5`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                questions = data.questions;
+                showQuestion();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+// 문제 표시
+function showQuestion() {
+    const question = questions[currentQuestionIndex];
+    
+    // 진행률 업데이트
+    updateProgress();
+    
+    // 문제 정보 표시
+    document.getElementById('question-number').textContent = `문제 ${currentQuestionIndex + 1}`;
+    document.getElementById('question-text').textContent = question.question;
+    
+    // 선택지 표시
+    const optionsContainer = document.getElementById('options-container');
+    optionsContainer.innerHTML = '';
+    
+    question.options.forEach((option, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerHTML = `
+            <span class="option-number">${String.fromCharCode(65 + index)}</span>
+            ${option}
+        `;
+        btn.onclick = () => selectOption(index);
+        optionsContainer.appendChild(btn);
+    });
+    
+    // 버튼 상태 초기화
+    selectedAnswer = null;
+    document.getElementById('submit-btn').disabled = true;
+    document.getElementById('submit-btn').style.display = 'inline-flex';
+    document.getElementById('next-btn').style.display = 'none';
+    document.getElementById('explanation-box').classList.remove('show');
+    
+    // 이전 버튼 표시
+    document.getElementById('prev-btn').style.display = 
+        currentQuestionIndex > 0 ? 'inline-flex' : 'none';
+}
+
+// 선택지 선택
+function selectOption(index) {
+    selectedAnswer = index;
+    
+    // 모든 버튼 선택 해제
+    document.querySelectorAll('.option-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    
+    // 선택한 버튼 표시
+    document.querySelectorAll('.option-btn')[index].classList.add('selected');
+    
+    // 제출 버튼 활성화
+    document.getElementById('submit-btn').disabled = false;
+}
+
+// 답안 제출
+function submitAnswer() {
+    if (selectedAnswer === null) return;
+    
+    const question = questions[currentQuestionIndex];
+    const isCorrect = selectedAnswer === question.answer;
+    
+    // 답안 저장
+    answers[currentQuestionIndex] = {
+        questionId: question.id,
+        userAnswer: selectedAnswer,
+        correct: isCorrect
+    };
+    
+    // 정답 표시
+    const optionBtns = document.querySelectorAll('.option-btn');
+    optionBtns.forEach((btn, index) => {
+        btn.classList.add('disabled');
+        btn.onclick = null;
+        
+        if (index === question.answer) {
+            btn.classList.add('correct');
+        } else if (index === selectedAnswer && !isCorrect) {
+            btn.classList.add('incorrect');
+        }
+    });
+    
+    // 해설 표시
+    document.getElementById('explanation-text').textContent = question.explanation;
+    document.getElementById('explanation-box').classList.add('show');
+    
+    // 버튼 변경
+    document.getElementById('submit-btn').style.display = 'none';
+    
+    if (currentQuestionIndex < questions.length - 1) {
+        document.getElementById('next-btn').style.display = 'inline-flex';
+    } else {
+        // 마지막 문제인 경우 결과 보기 버튼
+        const nextBtn = document.getElementById('next-btn');
+        nextBtn.textContent = '결과 보기';
+        nextBtn.onclick = showResult;
+        nextBtn.style.display = 'inline-flex';
+    }
+    
+    // 서버에 답안 제출
+    fetch('/api/learning/quiz/submit', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            question_id: question.id,
+            answer: selectedAnswer
+        })
+    });
+}
+
+// 다음 문제
+function nextQuestion() {
+    currentQuestionIndex++;
+    showQuestion();
+}
+
+// 이전 문제
+function previousQuestion() {
+    currentQuestionIndex--;
+    showQuestion();
+}
+
+// 진행률 업데이트
+function updateProgress() {
+    const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+    document.getElementById('progress-fill').style.width = `${progress}%`;
+    document.getElementById('progress-text').textContent = 
+        `${currentQuestionIndex + 1} / ${questions.length}`;
+}
+
+// 결과 표시
+function showResult() {
+    const correctCount = answers.filter(a => a.correct).length;
+    const totalCount = questions.length;
+    const percentage = Math.round((correctCount / totalCount) * 100);
+    
+    document.getElementById('quiz-card').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'block';
+    
+    document.getElementById('result-score').textContent = `${correctCount}/${totalCount}`;
+    
+    let message = '';
+    if (percentage >= 80) {
+        message = '훌륭합니다! 투자 기초를 잘 이해하고 계시네요. 다음 단계로 도전해보세요!';
+    } else if (percentage >= 60) {
+        message = '좋습니다! 조금 더 학습하시면 더 좋은 결과를 얻으실 수 있을 거예요.';
+    } else {
+        message = '아직 학습이 더 필요해요. 단어 학습을 통해 기초를 다져보세요!';
+    }
+    
+    document.getElementById('result-message').textContent = message;
+}
+
+// 다시 도전
+function retakeQuiz() {
+    currentQuestionIndex = 0;
+    selectedAnswer = null;
+    answers = [];
+    
+    document.getElementById('quiz-result').style.display = 'none';
+    document.getElementById('quiz-card').style.display = 'block';
+    
+    loadQuestions();
+}
+</script>
+{% endblock %}

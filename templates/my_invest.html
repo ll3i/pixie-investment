@@ -1,0 +1,1277 @@
+{% extends 'layout.html' %}
+{% block title %}MY 투자{% endblock %}
+{% block body_class %}{% endblock %}
+{% block extra_css %}
+<style>
+/* MY 투자 페이지 스타일 */
+.my-invest-container {
+    padding: 0;
+    max-width: 1920px;
+    margin: 0 auto;
+}
+
+/* 상단 컨트롤 영역 */
+.my-invest-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 40px 96px 20px;
+}
+
+.my-invest-filter-dropdown {
+    padding: 16px 33px;
+    border-radius: 8px;
+    border: 1px solid #D5D5D5;
+    background: white;
+    color: #474747;
+    font-size: 20px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* 탭 메뉴 스타일 */
+.my-invest-tabs {
+    display: flex;
+    gap: 80px;
+    padding: 0 96px;
+    margin-bottom: 30px;
+    border-bottom: 6px solid #F5F5F5;
+}
+
+.my-invest-tab {
+    position: relative;
+    padding: 10px 0 20px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #8F8F8F;
+    cursor: pointer;
+    background: none;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.my-invest-tab.active {
+    color: #1454FE;
+}
+
+.my-invest-tab.active::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 7px;
+    height: 7px;
+    background: #1454FE;
+    border-radius: 50%;
+}
+
+/* 콘텐츠 그리드 */
+.my-invest-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    padding: 0 96px;
+    margin-bottom: 80px;
+}
+
+.my-invest-card {
+    background: linear-gradient(311deg, rgba(255, 255, 255, 0.50) 0%, rgba(255, 255, 255, 1) 100%);
+    border-radius: 24px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: block;
+}
+
+.my-invest-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.my-invest-card-bg {
+    position: absolute;
+    inset: 0;
+    background: #F2F3F5;
+    z-index: -1;
+}
+
+.my-invest-card-content {
+    position: relative;
+    height: 100%;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    min-height: 500px;
+}
+
+.stock-category {
+    width: fit-content;
+    padding: 3px 20px;
+    background: #CADBFF;
+    border-radius: 4px;
+    color: #1454FE;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.stock-name {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 32px;
+    color: black;
+    margin-bottom: 8px;
+}
+
+.stock-price {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 40px;
+    color: black;
+    margin-bottom: 12px;
+}
+
+.stock-change {
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 28px;
+    margin-bottom: auto;
+}
+
+.stock-change.up {
+    color: #FE3F14;
+}
+
+.stock-change.down {
+    color: #1454FE;
+}
+
+.stock-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 20px;
+    gap: 10px;
+    border-top: 1px solid #E5E5E5;
+}
+
+.stock-code {
+    font-size: 14px;
+    color: #8F8F8F;
+    font-weight: 400;
+}
+
+.stock-action-btn {
+    padding: 8px 16px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #D5D5D5;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    font-size: 14px;
+    color: #474747;
+}
+
+.stock-action-btn:hover {
+    background: #1454FE;
+    color: white;
+    border-color: #1454FE;
+}
+
+/* 빈 상태 */
+.empty-state {
+    text-align: center;
+    padding: 120px 20px;
+}
+
+.empty-icon {
+    width: 120px;
+    height: 120px;
+    background: #F5F5F5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 32px;
+    font-size: 48px;
+    color: #C4C4C4;
+}
+
+.empty-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #000;
+    margin-bottom: 16px;
+}
+
+.empty-description {
+    font-size: 18px;
+    color: #474747;
+    margin-bottom: 32px;
+}
+
+.primary-button {
+    background: #1454FE;
+    color: white;
+    border: none;
+    padding: 16px 40px;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-block;
+    text-decoration: none;
+}
+
+.primary-button:hover {
+    background: #0B3DCF;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(20, 84, 254, 0.3);
+}
+
+/* 투자 프로필 카드 */
+.profile-card {
+    background: white;
+    border: 1px solid #E5E5E5;
+    border-radius: 24px;
+    padding: 40px;
+    margin: 0 96px 40px;
+}
+
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.profile-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #000;
+}
+
+.profile-content {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+}
+
+.profile-item {
+    text-align: center;
+}
+
+.profile-label {
+    font-size: 16px;
+    color: #8F8F8F;
+    margin-bottom: 8px;
+}
+
+.profile-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1454FE;
+}
+
+/* 포트폴리오 차트 컨테이너 */
+.portfolio-chart-container {
+    position: relative;
+    height: 400px;
+    margin: 20px 0;
+}
+
+.portfolio-tips {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    margin-top: 16px;
+}
+
+.portfolio-tips i {
+    color: #1454FE;
+    margin-right: 8px;
+}
+
+.portfolio-card {
+    background: white;
+    border: 1px solid #E5E5E5;
+    border-radius: 24px;
+    padding: 40px;
+}
+
+.recommended-stocks-section {
+    margin-top: 40px;
+}
+
+/* 보고서 모달 스타일 */
+.report-section {
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.report-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 16px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.metric-item {
+    text-align: center;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.metric-label {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 8px;
+}
+
+.metric-value {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.metric-value.excellent {
+    color: #198754;
+}
+
+.metric-value.good {
+    color: #0dcaf0;
+}
+
+.metric-value.fair {
+    color: #ffc107;
+}
+
+.metric-value.poor {
+    color: #dc3545;
+}
+
+.score-excellent {
+    color: #198754;
+}
+
+.score-good {
+    color: #0dcaf0;
+}
+
+.score-fair {
+    color: #ffc107;
+}
+
+.score-poor {
+    color: #dc3545;
+}
+
+.evaluation-매수 {
+    color: #198754;
+    font-weight: 700;
+}
+
+.evaluation-보유 {
+    color: #0dcaf0;
+    font-weight: 700;
+}
+
+.evaluation-매도 {
+    color: #dc3545;
+    font-weight: 700;
+}
+
+.evaluation-reasons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.reason-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.reason-item i {
+    color: #198754;
+    font-size: 16px;
+}
+
+.report-footer {
+    margin-top: 24px;
+    text-align: center;
+}
+
+/* 반응형 */
+@media (max-width: 1400px) {
+    .my-invest-controls,
+    .my-invest-tabs,
+    .my-invest-grid,
+    .profile-card {
+        padding-left: 40px;
+        padding-right: 40px;
+    }
+    
+    .my-invest-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 1024px) {
+    .my-invest-tabs {
+        gap: 40px;
+    }
+    
+    .my-invest-tab {
+        font-size: 20px;
+    }
+    
+    .my-invest-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .my-invest-controls,
+    .my-invest-tabs,
+    .my-invest-grid,
+    .profile-card {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    
+    .my-invest-tabs {
+        gap: 20px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .my-invest-tab {
+        font-size: 16px;
+        white-space: nowrap;
+    }
+    
+    .my-invest-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .info-grid,
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .info-grid,
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/static/js/portfolio-chart.js"></script>
+<script>
+// 전역 변수
+let myPortfolioChart = null;
+let userProfileData = null;
+
+// 페이지 로드시 초기화
+$(document).ready(function() {
+    loadUserProfile();
+    loadWatchlist();
+    loadCustomNews();
+});
+
+// 탭 전환
+function showTab(tabName) {
+    // 모든 탭 비활성화
+    $('.my-invest-tab').removeClass('active');
+    
+    // 모든 섹션 숨기기
+    $('#portfolio-section, #watchlist-section, #analysis-section, #news-section').hide();
+    
+    // 선택된 탭 활성화
+    event.target.classList.add('active');
+    
+    // 선택된 섹션 표시
+    $(`#${tabName}-section`).show();
+}
+
+// 사용자 프로필 로드
+async function loadUserProfile() {
+    try {
+        const response = await $.get('/api/user-profile');
+        if (response.profile) {
+            userProfileData = response.profile;
+            
+            $('#empty-portfolio').hide();
+            $('#profile-info').show();
+            
+            $('#investment-type').text(response.profile.type_label || '분석 중');
+            $('#risk-score').text(response.profile.risk_score ? response.profile.risk_score + '점' : '-');
+            $('#portfolio-type').text(response.profile.portfolio_type || '균형형');
+            
+            // 포트폴리오 차트 표시
+            $('#portfolio-chart-section').show();
+            loadPortfolioChart(response.profile.risk_score || 0);
+            
+            // 추천 종목 로드
+            loadRecommendedStocks(response.profile);
+        } else {
+            $('#profile-info').hide();
+            $('#portfolio-chart-section').hide();
+            $('#empty-portfolio').show();
+        }
+    } catch (error) {
+        console.error('프로필 로드 실패:', error);
+        $('#profile-info').hide();
+        $('#portfolio-chart-section').hide();
+        $('#empty-portfolio').show();
+    }
+}
+
+// 포트폴리오 차트 로드
+function loadPortfolioChart(riskScore) {
+    const ctx = document.getElementById('myPortfolioChart');
+    if (!ctx) return;
+
+    // 위험 성향에 따른 포트폴리오 구성
+    let portfolioData = {
+        labels: [],
+        data: [],
+        stocks: {}
+    };
+
+    if (riskScore >= 1.5) {
+        // 공격적 투자자
+        portfolioData.labels = ['국내 주식', '해외 주식', '대체 투자', '채권', '현금성 자산'];
+        portfolioData.data = [45, 30, 10, 10, 5];
+    } else if (riskScore >= 0.5) {
+        // 적극적 투자자
+        portfolioData.labels = ['국내 주식', '해외 주식', '채권', '대체 투자', '현금성 자산'];
+        portfolioData.data = [35, 25, 20, 10, 10];
+    } else if (riskScore >= -0.5) {
+        // 중립적 투자자
+        portfolioData.labels = ['국내 주식', '해외 주식', '채권', '현금성 자산', '대체 투자'];
+        portfolioData.data = [30, 20, 30, 15, 5];
+    } else {
+        // 보수적 투자자
+        portfolioData.labels = ['채권', '국내 주식', '현금성 자산', '해외 주식', '대체 투자'];
+        portfolioData.data = [40, 20, 20, 15, 5];
+    }
+
+    // window에 포트폴리오 데이터 저장
+    window.myPortfolioData = portfolioData;
+
+    // 차트 생성
+    if (myPortfolioChart) {
+        myPortfolioChart.destroy();
+    }
+
+    myPortfolioChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: portfolioData.labels,
+            datasets: [{
+                data: portfolioData.data,
+                backgroundColor: [
+                    '#1454FE',
+                    '#5B6BFF',
+                    '#8B95FF',
+                    '#CADBFF',
+                    '#E8EBFF'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        padding: 20,
+                        font: {
+                            size: 14,
+                            family: 'Pretendard'
+                        },
+                        generateLabels: function(chart) {
+                            const data = chart.data;
+                            if (data.labels.length && data.datasets.length) {
+                                return data.labels.map((label, i) => {
+                                    const dataset = data.datasets[0];
+                                    const value = dataset.data[i];
+                                    return {
+                                        text: `${label} ${value}%`,
+                                        fillStyle: dataset.backgroundColor[i],
+                                        hidden: false,
+                                        index: i
+                                    };
+                                });
+                            }
+                            return [];
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            return `${label}: ${value}%`;
+                        }
+                    }
+                }
+            },
+            onClick: handleMyPortfolioChartClick
+        }
+    });
+}
+
+// 포트폴리오 차트 클릭 핸들러
+function handleMyPortfolioChartClick(event, activeElements) {
+    if (activeElements.length > 0) {
+        const index = activeElements[0].index;
+        const category = window.myPortfolioData.labels[index];
+        const stocks = window.myPortfolioData.stocks[category];
+        
+        if (stocks && stocks.length > 0) {
+            showStockModal(category, stocks);
+        }
+    }
+}
+
+// 추천 종목 로드
+async function loadRecommendedStocks(profile) {
+    try {
+        const response = await fetch('/api/recommendations/stocks', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                investmentType: profile.type_label || '',
+                riskTolerance: profile.risk_score || 0
+            })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data.stocks && data.stocks.length > 0) {
+                // 포트폴리오 데이터에 종목 정보 추가
+                if (data.stocksByCategory) {
+                    window.myPortfolioData.stocks = data.stocksByCategory;
+                }
+            }
+        }
+    } catch (error) {
+        console.error('추천 종목 로드 실패:', error);
+    }
+}
+
+// 상세 포트폴리오 보기
+function showDetailedPortfolio() {
+    $('#recommended-stocks-section').toggle();
+    if ($('#recommended-stocks-section').is(':visible')) {
+        loadDetailedStocks();
+    }
+}
+
+// 상세 종목 로드
+async function loadDetailedStocks() {
+    if (!userProfileData) return;
+    
+    try {
+        const response = await fetch('/api/recommendations/stocks', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                investmentType: userProfileData.type_label || '',
+                riskTolerance: userProfileData.risk_score || 0
+            })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            displayDetailedStocks(data.stocks);
+        }
+    } catch (error) {
+        console.error('상세 종목 로드 실패:', error);
+    }
+}
+
+// 상세 종목 표시
+function displayDetailedStocks(stocks) {
+    const grid = document.getElementById('myRecommendedStocksGrid');
+    if (!grid) return;
+
+    grid.innerHTML = stocks.map(stock => `
+        <div class="my-invest-card" onclick="viewStock('${stock.ticker}')">
+            <div class="my-invest-card-bg"></div>
+            <div class="my-invest-card-content">
+                <div class="stock-category">추천 종목</div>
+                <h3 class="stock-name">${stock.name}</h3>
+                <p class="stock-price">${formatNumber(stock.currentPrice)}원</p>
+                <p class="stock-change ${stock.changePercent > 0 ? 'up' : 'down'}">
+                    ${stock.changePercent > 0 ? '+' : ''}${stock.changePercent.toFixed(2)}%
+                </p>
+                <div class="stock-info">
+                    <span class="stock-code">${stock.ticker}</span>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <span class="stock-code">평가: ${stock.score}점</span>
+                        <button class="stock-action-btn" onclick="event.stopPropagation(); addToWatchlist('${stock.ticker}', '${stock.name}')">
+                            <i class="fas fa-bookmark"></i>
+                            관심
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// 관심 종목 추가
+function addToWatchlist(ticker, name) {
+    $.ajax({
+        url: '/api/watchlist',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ ticker: ticker, name: name }),
+        success: function() {
+            alert('관심 종목에 추가되었습니다.');
+            loadWatchlist();
+        },
+        error: function() {
+            alert('관심 종목 추가에 실패했습니다.');
+        }
+    });
+}
+
+// 관심 종목 로드
+function loadWatchlist() {
+    $.get('/api/watchlist', function(data) {
+        const grid = $('#watchlist-grid');
+        grid.empty();
+        
+        if (data.watchlist && data.watchlist.length > 0) {
+            $('#empty-watchlist').hide();
+            grid.show();
+            
+            data.watchlist.forEach(stock => {
+                const changeClass = stock.change_percent > 0 ? 'up' : 'down';
+                const changeSign = stock.change_percent > 0 ? '+' : '';
+                
+                const card = `
+                    <div class="my-invest-card" onclick="viewStock('${stock.ticker}')">
+                        <div class="my-invest-card-bg"></div>
+                        <div class="my-invest-card-content">
+                            <div class="stock-category">${stock.sector || '주식'}</div>
+                            <h3 class="stock-name">${stock.name}</h3>
+                            <p class="stock-price">${formatNumber(stock.price)}원</p>
+                            <p class="stock-change ${changeClass}">
+                                ${changeSign}${stock.change_percent.toFixed(2)}%
+                            </p>
+                            <div class="stock-info">
+                                <span class="stock-code">${stock.ticker}</span>
+                                <button class="stock-action-btn" onclick="event.stopPropagation(); removeFromWatchlist('${stock.ticker}')">
+                                    <i class="fas fa-bookmark"></i>
+                                    제거
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.append(card);
+            });
+        } else {
+            grid.hide();
+            $('#empty-watchlist').show();
+        }
+    });
+}
+
+// 맞춤 뉴스 로드
+function loadCustomNews() {
+    $.get('/api/news-portfolio', function(data) {
+        const grid = $('#news-grid');
+        grid.empty();
+        
+        if (data.news_list && data.news_list.length > 0) {
+            data.news_list.slice(0, 8).forEach(news => {
+                const card = `
+                    <div class="my-invest-card" onclick="window.open('${news.link}', '_blank')">
+                        <div class="my-invest-card-bg"></div>
+                        <div class="my-invest-card-content">
+                            <div class="stock-category">뉴스</div>
+                            <h3 class="stock-name">${news.title}</h3>
+                            <p style="font-size: 16px; color: #474747; line-height: 1.5; margin-top: 12px;">
+                                ${news.summary || news.description}
+                            </p>
+                            <div class="stock-info">
+                                <span class="stock-code">${news.source || '뉴스'}</span>
+                                <span class="stock-code">${formatDate(news.pubDate)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.append(card);
+            });
+        }
+    });
+}
+
+// 종목 상세 보기
+function viewStock(ticker) {
+    window.location.href = `/stock?ticker=${ticker}`;
+}
+
+// 관심 종목 제거
+function removeFromWatchlist(ticker) {
+    if (confirm('관심 종목에서 제거하시겠습니까?')) {
+        $.ajax({
+            url: `/api/watchlist/${ticker}`,
+            type: 'DELETE',
+            success: function() {
+                loadWatchlist();
+            }
+        });
+    }
+}
+
+// 숫자 포맷팅
+function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+// 날짜 포맷팅
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diff = now - date;
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    
+    if (hours < 1) return '방금 전';
+    if (hours < 24) return `${hours}시간 전`;
+    if (hours < 48) return '어제';
+    return date.toLocaleDateString('ko-KR');
+}
+
+// 종목 상세 모달 표시 (portfolio-chart.js의 함수를 재정의)
+function showStockModal(category, stocks) {
+    // 기존 모달 제거
+    const existingModal = document.getElementById('stockDetailModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    // 모달 HTML 생성
+    const modalHTML = `
+        <div id="stockDetailModal" class="modal fade" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">${category} 상세 종목</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="stock-list">
+                            ${stocks.map(stock => `
+                                <div class="stock-item">
+                                    <div class="stock-info">
+                                        <h6 class="stock-name">${stock.name}</h6>
+                                        <span class="stock-code">${stock.code || stock.ticker}</span>
+                                    </div>
+                                    <div class="stock-details">
+                                        <div class="allocation">
+                                            <span class="label">비중</span>
+                                            <span class="value">${stock.allocation}%</span>
+                                        </div>
+                                        ${stock.currentPrice ? `
+                                            <div class="price">
+                                                <span class="label">현재가</span>
+                                                <span class="value">${formatNumber(stock.currentPrice)}원</span>
+                                            </div>
+                                        ` : ''}
+                                        ${stock.changePercent !== undefined ? `
+                                            <div class="change ${stock.changePercent > 0 ? 'up' : 'down'}">
+                                                <span class="label">변동률</span>
+                                                <span class="value">${stock.changePercent > 0 ? '+' : ''}${stock.changePercent}%</span>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary view-detail-btn" 
+                                            onclick="showStockReportModal('${stock.code || stock.ticker}')">
+                                        자세히 보기
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // 모달 추가 및 표시
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    const modal = new bootstrap.Modal(document.getElementById('stockDetailModal'));
+    modal.show();
+}
+
+// 종목 상세 보고서 모달 표시
+async function showStockReportModal(ticker) {
+    try {
+        // API 호출하여 종목 상세 정보 가져오기
+        const response = await fetch(`/api/stock/${ticker}/report`);
+        const data = await response.json();
+        
+        if (!data.success) {
+            alert('종목 정보를 불러올 수 없습니다.');
+            return;
+        }
+        
+        const report = data.report;
+        
+        // 기존 모달 제거
+        const existingModal = document.getElementById('stockReportModal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+        
+        // 보고서 모달 HTML 생성
+        const modalHTML = `
+            <div id="stockReportModal" class="modal fade" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">${report.name} (${report.ticker}) 상세 분석 보고서</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="report-section">
+                                <h6 class="section-title">기본 정보</h6>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="label">종목명</span>
+                                        <span class="value">${report.name}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">종목코드</span>
+                                        <span class="value">${report.ticker}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">현재가</span>
+                                        <span class="value">${formatNumber(report.currentPrice)}원</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">시가총액</span>
+                                        <span class="value">${formatMarketCap(report.marketCap)}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">평가점수</span>
+                                        <span class="value score-${getScoreClass(report.score)}">${report.score}점</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">종합평가</span>
+                                        <span class="value evaluation-${report.evaluation}">${report.evaluation}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="report-section">
+                                <h6 class="section-title">재무 지표</h6>
+                                <div class="metrics-grid">
+                                    <div class="metric-item">
+                                        <div class="metric-label">매출성장률</div>
+                                        <div class="metric-value ${getMetricClass('growth', report.metrics.revenueGrowth)}">
+                                            ${report.metrics.revenueGrowth !== null ? report.metrics.revenueGrowth.toFixed(1) + '%' : '-'}
+                                        </div>
+                                    </div>
+                                    <div class="metric-item">
+                                        <div class="metric-label">순이익률</div>
+                                        <div class="metric-value ${getMetricClass('profit', report.metrics.profitMargin)}">
+                                            ${report.metrics.profitMargin !== null ? report.metrics.profitMargin.toFixed(1) + '%' : '-'}
+                                        </div>
+                                    </div>
+                                    <div class="metric-item">
+                                        <div class="metric-label">부채비율</div>
+                                        <div class="metric-value ${getMetricClass('debt', report.metrics.debtRatio)}">
+                                            ${report.metrics.debtRatio !== null ? report.metrics.debtRatio.toFixed(1) + '%' : '-'}
+                                        </div>
+                                    </div>
+                                    <div class="metric-item">
+                                        <div class="metric-label">PER</div>
+                                        <div class="metric-value ${getMetricClass('per', report.metrics.per)}">
+                                            ${report.metrics.per !== null ? report.metrics.per.toFixed(1) : '-'}
+                                        </div>
+                                    </div>
+                                    <div class="metric-item">
+                                        <div class="metric-label">PBR</div>
+                                        <div class="metric-value ${getMetricClass('pbr', report.metrics.pbr)}">
+                                            ${report.metrics.pbr !== null ? report.metrics.pbr.toFixed(2) : '-'}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="report-section">
+                                <h6 class="section-title">평가 분석</h6>
+                                <div class="evaluation-reasons">
+                                    ${report.evaluationReasons.map(reason => 
+                                        `<div class="reason-item">
+                                            <i class="fas fa-check-circle"></i>
+                                            <span>${reason}</span>
+                                        </div>`
+                                    ).join('')}
+                                </div>
+                            </div>
+                            
+                            <div class="report-footer">
+                                <small class="text-muted">기준일: ${report.updatedAt}</small>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                            <button type="button" class="btn btn-primary" onclick="window.location.href='/stock?ticker=${report.ticker}'">
+                                상세 페이지로 이동
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // 모달 추가 및 표시
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        const modal = new bootstrap.Modal(document.getElementById('stockReportModal'));
+        modal.show();
+        
+    } catch (error) {
+        console.error('종목 보고서 로드 실패:', error);
+        alert('종목 정보를 불러오는 중 오류가 발생했습니다.');
+    }
+}
+
+// 헬퍼 함수들
+function formatMarketCap(value) {
+    if (!value) return '-';
+    if (value >= 1000000000000) {
+        return (value / 1000000000000).toFixed(1) + '조원';
+    } else if (value >= 100000000) {
+        return (value / 100000000).toFixed(0) + '억원';
+    } else {
+        return formatNumber(value) + '원';
+    }
+}
+
+function getScoreClass(score) {
+    if (score >= 80) return 'excellent';
+    if (score >= 70) return 'good';
+    if (score >= 60) return 'fair';
+    return 'poor';
+}
+
+function getMetricClass(type, value) {
+    if (value === null || value === undefined) return '';
+    
+    switch(type) {
+        case 'growth':
+            return value > 20 ? 'excellent' : value > 10 ? 'good' : value > 0 ? 'fair' : 'poor';
+        case 'profit':
+            return value > 15 ? 'excellent' : value > 10 ? 'good' : value > 5 ? 'fair' : 'poor';
+        case 'debt':
+            return value < 50 ? 'excellent' : value < 100 ? 'good' : value < 150 ? 'fair' : 'poor';
+        case 'per':
+            return value < 10 ? 'excellent' : value < 15 ? 'good' : value < 25 ? 'fair' : 'poor';
+        case 'pbr':
+            return value < 1 ? 'excellent' : value < 1.5 ? 'good' : value < 3 ? 'fair' : 'poor';
+        default:
+            return '';
+    }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="my-invest-container">
+    <!-- 상단 헤더 이미지와 타이틀 영역 -->
+    <div style="position: relative; width: 100%; height: 400px; overflow: hidden; margin-bottom: 40px;">
+        <img src="/static/images/invest1.png" 
+             alt="나만의 전략을 세우는 맞춤 투자 공간, MY투자" 
+             style="width: 100%; height: 100%; object-fit: cover;">
+        <div style="position: absolute; top: 50%; left: 96px; transform: translateY(-50%);">
+            <h1 style="font-size: 48px; font-weight: 700; color: #000; margin: 0; line-height: 1.2;">
+                나만의 전략을 세우는<br>
+                맞춤 투자 공간, MY투자
+            </h1>
+            <p style="font-size: 20px; color: #666; margin-top: 16px;">
+                AI가 분석한 투자 성향과 관심 뉴스까지 한 곳에.<br>
+                픽시와 함께 더 똑똑하고 안정적인 투자 여정을 시작해보세요.
+            </p>
+        </div>
+    </div>
+
+    <!-- 상단 컨트롤 영역 -->
+    <div class="my-invest-controls">
+        <h1 style="font-size: 36px; font-weight: 700; color: #000; margin: 0;">MY 투자</h1>
+        <div class="my-invest-filter-dropdown">
+            국내 뉴스
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </div>
+
+    <!-- 탭 메뉴 -->
+    <div class="my-invest-tabs">
+        <button class="my-invest-tab active" onclick="showTab('portfolio')">내 포트폴리오</button>
+        <button class="my-invest-tab" onclick="showTab('watchlist')">관심 종목</button>
+        <button class="my-invest-tab" onclick="showTab('analysis')">투자 분석</button>
+        <button class="my-invest-tab" onclick="showTab('news')">맞춤 뉴스</button>
+    </div>
+
+    <!-- 투자 프로필 카드 (내 포트폴리오 탭에서만 표시) -->
+    <div id="portfolio-section">
+        <div class="profile-card" id="profile-info" style="display: none;">
+            <div class="profile-header">
+                <h2 class="profile-title">내 투자 프로필</h2>
+                <a href="/survey" class="stock-action-btn">
+                    <i class="fas fa-sync-alt"></i>
+                    다시 분석
+                </a>
+            </div>
+            <div class="profile-content">
+                <div class="profile-item">
+                    <p class="profile-label">투자 성향</p>
+                    <p class="profile-value" id="investment-type">-</p>
+                </div>
+                <div class="profile-item">
+                    <p class="profile-label">위험 감수도</p>
+                    <p class="profile-value" id="risk-score">-</p>
+                </div>
+                <div class="profile-item">
+                    <p class="profile-label">추천 포트폴리오</p>
+                    <p class="profile-value" id="portfolio-type">-</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 맞춤형 포트폴리오 차트 -->
+        <div class="portfolio-card" id="portfolio-chart-section" style="display: none; margin-top: 24px;">
+            <h3 class="profile-title">맞춤형 포트폴리오 구성</h3>
+            <div class="portfolio-chart-container">
+                <canvas id="myPortfolioChart"></canvas>
+            </div>
+            <div class="portfolio-tips">
+                <p><i class="fas fa-info-circle"></i> 그래프를 클릭하면 상세 종목을 확인할 수 있습니다</p>
+            </div>
+            <button class="primary-button" style="margin-top: 20px; width: 100%;" onclick="showDetailedPortfolio()">
+                자세히 보기
+            </button>
+        </div>
+
+        <!-- 추천 종목 리스트 -->
+        <div class="recommended-stocks-section" id="recommended-stocks-section" style="display: none; margin-top: 40px;">
+            <h3 class="profile-title">맞춤 추천 종목</h3>
+            <div id="myRecommendedStocksGrid" class="my-invest-grid">
+                <!-- 동적으로 로드됨 -->
+            </div>
+        </div>
+
+        <!-- 포트폴리오가 없는 경우 -->
+        <div class="empty-state" id="empty-portfolio" style="display: none;">
+            <div class="empty-icon">
+                <i class="fas fa-chart-pie"></i>
+            </div>
+            <h3 class="empty-title">아직 투자 프로필이 없습니다</h3>
+            <p class="empty-description">
+                투자 성향을 분석하고 맞춤 포트폴리오를 추천받아보세요
+            </p>
+            <a href="/survey" class="primary-button">투자 성향 분석 시작</a>
+        </div>
+    </div>
+
+    <!-- 관심 종목 그리드 -->
+    <div id="watchlist-section" style="display: none;">
+        <div class="my-invest-grid" id="watchlist-grid">
+            <!-- 동적으로 로드됨 -->
+        </div>
+        
+        <!-- 관심 종목이 없는 경우 -->
+        <div class="empty-state" id="empty-watchlist" style="display: none;">
+            <div class="empty-icon">
+                <i class="fas fa-bookmark"></i>
+            </div>
+            <h3 class="empty-title">관심 종목이 없습니다</h3>
+            <p class="empty-description">
+                주식을 검색하고 관심 종목을 추가해보세요
+            </p>
+            <a href="/stock" class="primary-button">종목 검색하기</a>
+        </div>
+    </div>
+
+    <!-- 투자 분석 섹션 -->
+    <div id="analysis-section" style="display: none;">
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h3 class="empty-title">투자 분석 준비 중</h3>
+            <p class="empty-description">
+                곧 제공될 예정입니다
+            </p>
+        </div>
+    </div>
+
+    <!-- 맞춤 뉴스 섹션 -->
+    <div id="news-section" style="display: none;">
+        <div class="my-invest-grid" id="news-grid">
+            <!-- 동적으로 로드됨 -->
+        </div>
+    </div>
+</div>
+{% endblock %}

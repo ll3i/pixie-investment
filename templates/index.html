@@ -1,0 +1,1263 @@
+{% extends 'layout.html' %}
+
+{% block title %}Pixie - AI 투자 어드바이저{% endblock %}
+
+{% block body_class %}custom-nav-page{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Figma 디자인 기반 Pixie 홈페이지 스타일 */
+    :root {
+        --pixie-primary: #1454FE;
+        --pixie-primary-dark: #0B3DCF;
+        --pixie-secondary: #5E97F4;
+        --pixie-dark: #2F2E41;
+        --pixie-dark-light: #3F3D56;
+        --pixie-gray: #474747;
+        --pixie-light-gray: #F5F5F5;
+        --pixie-white: #FFFFFF;
+        --pixie-black: #000000;
+        --pixie-green: #22C55E;
+        --pixie-text-muted: #8F8F8F;
+        --pixie-gradient: linear-gradient(90deg, #5E97F4 0%, #3B7AFF 100%);
+        --pixie-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15);
+        --pixie-shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+        line-height: 1.6;
+        color: var(--pixie-black);
+        background: var(--pixie-white);
+        overflow-x: hidden;
+    }
+
+    /* 네비게이션 오버라이드 */
+    .pixie-navbar {
+        background: var(--pixie-white);
+        box-shadow: var(--pixie-shadow);
+        padding: 36px 134px;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .pixie-nav-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1920px;
+        margin: 0 auto;
+    }
+
+    .pixie-logo {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+    }
+    
+    .pixie-logo img {
+        height: 40px;
+        width: auto;
+    }
+
+    .pixie-nav-menu {
+        display: flex;
+        gap: 100px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .pixie-nav-item {
+        text-align: center;
+        color: var(--pixie-black);
+        font-size: 24px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 600;
+        line-height: 33.6px;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .pixie-nav-item:hover {
+        color: var(--pixie-primary);
+    }
+
+    .pixie-nav-icons {
+        display: flex;
+        gap: 43px;
+        align-items: center;
+    }
+
+    .pixie-nav-icon {
+        width: 29px;
+        height: 29px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        background: transparent;
+        color: var(--pixie-black);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 16px;
+    }
+
+    .pixie-nav-icon:hover {
+        background: var(--pixie-primary);
+        color: var(--pixie-white);
+    }
+
+    /* 히어로 섹션 */
+    .pixie-hero {
+        min-height: 604px;
+        background: var(--pixie-light-gray);
+        display: flex;
+        align-items: center;
+        padding: 0 242px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .pixie-hero-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        max-width: 1920px;
+        margin: 0 auto;
+    }
+
+    .pixie-hero-text {
+        flex: 1;
+        max-width: 800px;
+    }
+
+    .pixie-hero-title {
+        color: var(--pixie-black);
+        font-size: 48px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 700;
+        margin-bottom: 20px;
+        line-height: 1.2;
+    }
+
+    .pixie-hero-description {
+        color: var(--pixie-gray);
+        font-size: 18px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 400;
+        line-height: 27px;
+        margin-bottom: 40px;
+        max-width: 600px;
+        white-space: pre-line;
+    }
+
+    .pixie-hero-buttons {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .pixie-btn-primary {
+        background: var(--pixie-primary);
+        color: var(--pixie-white);
+        border: none;
+        padding: 16px 33px;
+        border-radius: 8px;
+        font-size: 20px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 500;
+        line-height: 28px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 16px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .pixie-btn-primary:hover {
+        background: var(--pixie-primary-dark);
+        transform: translateY(-2px);
+        color: var(--pixie-white);
+    }
+
+    .pixie-btn-secondary {
+        background: transparent;
+        color: var(--pixie-primary);
+        border: 1px solid var(--pixie-primary);
+        padding: 16px 33px;
+        border-radius: 8px;
+        font-size: 20px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 500;
+        line-height: 28px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 16px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .pixie-btn-secondary:hover {
+        background: var(--pixie-primary);
+        color: var(--pixie-white);
+        transform: translateY(-2px);
+    }
+
+    /* 히어로 차트 시각화 */
+    .pixie-hero-visual {
+        position: relative;
+        width: 400px;
+        height: 400px;
+        margin-left: 100px;
+    }
+
+    .pixie-chart-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+
+    .pixie-chart-bars {
+        position: absolute;
+        bottom: 100px;
+        right: 100px;
+        display: flex;
+        align-items: end;
+        gap: 15px;
+    }
+
+    .pixie-chart-bar {
+        width: 37px;
+        background: var(--pixie-gradient);
+        border-radius: 4px 4px 0 0;
+        position: relative;
+    }
+
+
+    .pixie-chart-bar.bar1 { height: 108px; }
+    .pixie-chart-bar.bar2 { height: 148px; }
+    .pixie-chart-bar.bar3 { height: 108px; }
+    .pixie-chart-bar.bar4 { height: 164px; }
+    .pixie-chart-bar.bar5 { height: 193px; }
+
+    /* 시장 감정 배너 */
+    .market-sentiment-banner {
+        background: linear-gradient(135deg, #f0f4ff 0%, #e8efff 100%);
+        border-radius: 16px;
+        padding: 24px 32px;
+        margin-bottom: 40px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .sentiment-loading {
+        text-align: center;
+        color: #666;
+        font-size: 16px;
+    }
+
+    .sentiment-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 24px;
+    }
+
+    .sentiment-main {
+        flex: 1;
+    }
+
+    .sentiment-score {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .sentiment-icon {
+        font-size: 32px;
+    }
+
+    .sentiment-value {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+
+    .sentiment-mood {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .sentiment-mood.positive { color: #10b981; }
+    .sentiment-mood.negative { color: #ef4444; }
+    .sentiment-mood.neutral { color: #6b7280; }
+
+    .sentiment-description {
+        color: #666;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .sentiment-stats {
+        display: flex;
+        gap: 32px;
+    }
+
+    .sentiment-stat {
+        text-align: center;
+    }
+
+    .sentiment-stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1a1a1a;
+        display: block;
+    }
+
+    .sentiment-stat-label {
+        color: #666;
+        font-size: 13px;
+        margin-top: 4px;
+    }
+
+    .watchlist-notice {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 24px;
+        font-size: 14px;
+        color: #856404;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .watchlist-notice i {
+        color: #f39c12;
+    }
+
+    .pixie-hero-person {
+        position: absolute;
+        bottom: 50px;
+        right: 0;
+        width: 200px;
+        height: 250px;
+        background-image: url('/static/images/dash1.png');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+    .pixie-chart-line {
+        position: absolute;
+        bottom: 185px;
+        right: 100px;
+        width: 330px;
+        height: 1px;
+        background: #CBCBCB;
+    }
+
+    /* 이슈 종목 추천 섹션 */
+    .pixie-issues-section {
+        padding: 100px 96px;
+        background: var(--pixie-white);
+    }
+
+    .pixie-section-title {
+        color: var(--pixie-black);
+        font-size: 36px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 700;
+        line-height: 46.8px;
+        margin-bottom: 60px;
+    }
+
+    .pixie-issues-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(414px, 1fr));
+        gap: 24px;
+        margin-top: 40px;
+    }
+
+    .pixie-issue-card {
+        background: var(--pixie-light-gray);
+        border-radius: 28px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .pixie-issue-card.tall {
+        height: 621px;
+    }
+
+    .pixie-issue-card.short {
+        height: 226px;
+        background: #272727;
+        color: var(--pixie-white);
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .pixie-issue-content {
+        padding: 40px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .pixie-issue-title {
+        color: var(--pixie-black);
+        font-size: 28px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 600;
+        line-height: 39.2px;
+        margin-bottom: 20px;
+    }
+
+    .pixie-issue-stocks {
+        color: var(--pixie-white);
+        font-size: 16px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 400;
+        line-height: 24px;
+        margin-bottom: 20px;
+    }
+
+    .pixie-issue-label {
+        color: var(--pixie-white);
+        font-size: 20px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 500;
+        line-height: 28px;
+        margin-bottom: 10px;
+    }
+
+    .pixie-issue-highlight {
+        color: var(--pixie-secondary);
+        font-size: 16px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 700;
+        line-height: 24px;
+    }
+
+    .pixie-issue-btn {
+        background: var(--pixie-black);
+        color: var(--pixie-white);
+        border: none;
+        padding: 14px 25px;
+        border-radius: 200px;
+        font-size: 18px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 400;
+        line-height: 27px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        backdrop-filter: blur(100px);
+        margin-bottom: 20px;
+        align-self: flex-start;
+    }
+
+    .pixie-issue-btn:hover {
+        background: var(--pixie-primary);
+    }
+
+    /* 트렌드 맵 섹션 */
+    .pixie-trends-section {
+        padding: 100px 96px;
+        background: var(--pixie-white);
+    }
+
+    .pixie-trends-description {
+        color: var(--pixie-text-muted);
+        font-size: 20px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 500;
+        line-height: 28px;
+        margin-bottom: 20px;
+    }
+
+    .pixie-trends-note {
+        color: #3B7AFF;
+        font-size: 20px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 500;
+        line-height: 28px;
+        margin-bottom: 60px;
+    }
+
+    .pixie-trends-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 28px;
+        margin-bottom: 40px;
+        flex-wrap: wrap;
+    }
+
+    .pixie-trend-tag {
+        padding: 33px 75px;
+        border-radius: 82px;
+        border: 2.5px solid var(--pixie-black);
+        background: transparent;
+        text-align: center;
+        color: var(--pixie-black);
+        font-size: 48px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 300;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .pixie-trend-tag.active {
+        background: #3B7AFF;
+        color: var(--pixie-white);
+        border-color: var(--pixie-white);
+    }
+
+    .pixie-trend-tag:hover {
+        background: var(--pixie-primary);
+        color: var(--pixie-white);
+        border-color: var(--pixie-white);
+        transform: translateY(-4px);
+    }
+
+    /* 서비스 소개 섹션 */
+    .pixie-services-section {
+        padding: 100px 96px;
+        background: var(--pixie-white);
+    }
+
+    .pixie-services-title {
+        color: var(--pixie-black);
+        font-size: 36px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 700;
+        line-height: 46.8px;
+        margin-bottom: 80px;
+        text-align: center;
+    }
+
+    .pixie-services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+        gap: 40px;
+    }
+
+    .pixie-service-card {
+        background: var(--pixie-light-gray);
+        border-radius: 28px;
+        padding: 60px 40px;
+        text-align: center;
+        transition: all 0.3s ease;
+        height: 362px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .pixie-service-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--pixie-shadow-lg);
+    }
+
+    .pixie-service-icon {
+        width: 74px;
+        height: 74px;
+        background: var(--pixie-primary);
+        margin: 0 auto 20px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        color: var(--pixie-white);
+    }
+
+    .pixie-service-label {
+        color: var(--pixie-gray);
+        font-size: 20px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 700;
+        line-height: 30px;
+        margin-bottom: 30px;
+    }
+
+    .pixie-service-title {
+        color: var(--pixie-black);
+        font-size: 36px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 700;
+        line-height: 46.8px;
+        margin-bottom: 20px;
+    }
+
+    .pixie-service-description {
+        color: var(--pixie-gray);
+        font-size: 18px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 400;
+        line-height: 27px;
+        margin-bottom: 40px;
+    }
+
+    .pixie-service-btn {
+        background: transparent;
+        color: var(--pixie-primary);
+        border: 1px solid var(--pixie-primary);
+        padding: 16px 33px;
+        border-radius: 8px;
+        font-size: 20px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 500;
+        line-height: 28px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 16px;
+        transition: all 0.2s ease;
+        justify-content: center;
+    }
+
+    .pixie-service-btn:hover {
+        background: var(--pixie-primary);
+        color: var(--pixie-white);
+        transform: translateY(-2px);
+    }
+
+    /* 푸터 */
+    .pixie-footer {
+        background: var(--pixie-white);
+        padding: 80px 96px;
+        border-top: 1px solid #E2E8F0;
+    }
+
+    .pixie-footer-content {
+        max-width: 1728px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 60px;
+        margin-bottom: 40px;
+    }
+
+    .pixie-footer-brand {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .pixie-footer-logo {
+        color: var(--pixie-primary);
+        font-size: 40px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+    }
+
+    .pixie-footer-tagline {
+        color: var(--pixie-black);
+        font-size: 14px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 300;
+        line-height: 19.6px;
+    }
+
+    .pixie-footer-section h4 {
+        color: var(--pixie-black);
+        font-size: 14px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 400;
+        line-height: 21px;
+        margin-bottom: 16px;
+    }
+
+    .pixie-footer-section p {
+        color: var(--pixie-gray);
+        font-size: 14px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 400;
+        line-height: 21px;
+        opacity: 0.5;
+    }
+
+    .pixie-footer-bottom {
+        border-top: 1px solid #E2E8F0;
+        padding-top: 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--pixie-gray);
+        font-size: 14px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 400;
+        line-height: 21px;
+    }
+
+    /* 반응형 디자인 */
+    @media (max-width: 1400px) {
+        .pixie-navbar,
+        .pixie-hero,
+        .pixie-issues-section,
+        .pixie-trends-section,
+        .pixie-services-section,
+        .pixie-footer {
+            padding-left: 40px;
+            padding-right: 40px;
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .pixie-nav-menu {
+            gap: 50px;
+        }
+        
+        .pixie-nav-item {
+            font-size: 18px;
+        }
+        
+        .pixie-hero-content {
+            flex-direction: column;
+            gap: 60px;
+        }
+        
+        .pixie-hero-visual {
+            margin-left: 0;
+        }
+        
+        .pixie-hero-title {
+            font-size: 36px;
+        }
+        
+        .pixie-trend-tag {
+            font-size: 36px;
+            padding: 25px 50px;
+        }
+        
+        .pixie-issues-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .pixie-navbar {
+            padding: 20px;
+        }
+        
+        .pixie-logo {
+            font-size: 28px;
+        }
+        
+        .pixie-nav-menu {
+            display: none;
+        }
+        
+        .pixie-hero {
+            padding: 40px 20px;
+        }
+        
+        .pixie-hero-title {
+            font-size: 28px;
+        }
+        
+        .pixie-hero-description {
+            font-size: 16px;
+        }
+        
+        .pixie-hero-buttons {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .pixie-hero-visual {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .pixie-section-title,
+        .pixie-services-title {
+            font-size: 28px;
+        }
+        
+        .pixie-trend-tag {
+            font-size: 24px;
+            padding: 20px 40px;
+        }
+        
+        .pixie-trends-row {
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .pixie-service-title {
+            font-size: 24px;
+        }
+        
+        .pixie-issues-section,
+        .pixie-trends-section,
+        .pixie-services-section,
+        .pixie-footer {
+            padding: 60px 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 커스텀 네비게이션 -->
+<nav class="pixie-navbar">
+    <div class="pixie-nav-content">
+        <a href="/" class="pixie-logo">Pixie</a>
+        
+        <ul class="pixie-nav-menu">
+            <li><a href="/survey" class="pixie-nav-item">투자 설문</a></li>
+            <li><a href="/learning" class="pixie-nav-item">투자학습</a></li>
+            <li><a href="/news" class="pixie-nav-item">뉴스/이슈</a></li>
+            <li><a href="/my-investment" class="pixie-nav-item">MY 투자</a></li>
+        </ul>
+        
+        <div class="pixie-nav-icons">
+            <div class="pixie-nav-icon" onclick="window.location.href='/search'">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="pixie-nav-icon" onclick="window.location.href='/alerts'">
+                <i class="fas fa-bell"></i>
+            </div>
+            <div class="pixie-nav-icon" onclick="window.location.href='/profile'">
+                <i class="fas fa-user"></i>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- 히어로 섹션 -->
+<section class="pixie-hero">
+    <div class="pixie-hero-content">
+        <div class="pixie-hero-text">
+            <h1 class="pixie-hero-title">당신의 똑똑한 투자 파트너, 픽시<br>함께 만드는 나만의 투자 전략</h1>
+            <p class="pixie-hero-description">
+                AI 기반 분석으로 당신의 투자 성향과 시장 흐름을 정밀하게 파악하고,<br>
+                맞춤 전략을 추천해드려요. 픽시와 함께 더 스마트한 투자 여정을 시작해보세요.
+            </p>
+            <div class="pixie-hero-buttons">
+                <a href="/survey" class="pixie-btn-primary">투자 성향 분석 시작</a>
+                <a href="/my-investment" class="pixie-btn-secondary">
+                    MY 투자 보러가기
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="pixie-hero-visual">
+            <div class="pixie-chart-container">
+                <div class="pixie-hero-person"></div>
+                <div class="pixie-chart-line"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 오늘의 이슈 종목 추천 -->
+<section class="pixie-issues-section">
+    <h2 class="pixie-section-title">오늘의 이슈 종목 추천</h2>
+    
+    <!-- 시장 감정 분석 배너 -->
+    <div class="market-sentiment-banner" id="marketSentimentBanner">
+        <div class="sentiment-loading">
+            <i class="fas fa-spinner fa-spin"></i> 시장 분위기 분석 중...
+        </div>
+    </div>
+    
+    <!-- 관심 종목 알림 -->
+    <div class="watchlist-notice" id="watchlistNotice" style="display: none;">
+        <i class="fas fa-info-circle"></i>
+        <span>MY 투자에서 관심 종목을 추가하면 맞춤형 뉴스를 확인할 수 있습니다.</span>
+    </div>
+    
+    <div class="pixie-issues-grid" id="issueStocksGrid">
+        <!-- 반도체 카드 -->
+        <div class="pixie-issue-card tall">
+            <div class="pixie-issue-content">
+                <div>
+                    <h3 class="pixie-issue-title">반도체 공급난 재점화?<br>관련 종목 주목!</h3>
+                </div>
+                <div class="pixie-issue-card short" style="margin: 20px 0; border-radius: 20px;">
+                    <div>
+                        <button class="pixie-issue-btn">관련 기사 원문</button>
+                        <p class="pixie-issue-label">핵심 종목</p>
+                        <p class="pixie-issue-stocks">삼성전자 – 투자 중심 기업<br>DB하이텍 – AI 반도체 관련 부품 수혜주<br>원익IPS – 반도체 장비 공급사</p>
+                        <p class="pixie-issue-highlight">장비 수요 급증으로 수혜 가능성 ↑</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 메타버스 카드 -->
+        <div class="pixie-issue-card tall">
+            <div class="pixie-issue-content">
+                <div>
+                    <h3 class="pixie-issue-title">다시 메타버스 열풍,<br>관련 기술주 다시 부각</h3>
+                </div>
+                <div class="pixie-issue-card short" style="margin: 20px 0; border-radius: 20px;">
+                    <div>
+                        <button class="pixie-issue-btn">관련 기사 원문</button>
+                        <p class="pixie-issue-label">핵심 종목</p>
+                        <p class="pixie-issue-stocks">맥스트 - AR(증강현실) 소프트웨어<br>선익시스템 - OLED 증착 장비 제조</p>
+                        <p class="pixie-issue-highlight">XR 디바이스 수요 확대에 따른 콘텐츠·부품 기업 동반 수혜 가능성 ↑</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 비메모리 카드 -->
+        <div class="pixie-issue-card tall">
+            <div class="pixie-issue-content">
+                <div>
+                    <h3 class="pixie-issue-title">비메모리 육성 본격화…<br>파운드리 시장 키운다!</h3>
+                </div>
+                <div class="pixie-issue-card short" style="margin: 20px 0; border-radius: 20px;">
+                    <div>
+                        <button class="pixie-issue-btn">관련 기사 원문</button>
+                        <p class="pixie-issue-label">핵심 종목</p>
+                        <p class="pixie-issue-stocks">DB하이텍 – 파운드리 생산능력 확대<br>SK하이닉스 – CIS 등 비메모리 투자 강화</p>
+                        <p class="pixie-issue-highlight">비메모리 생태계 확장으로 장비주까지 수혜 전망↑</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 자율주행 카드 -->
+        <div class="pixie-issue-card tall">
+            <div class="pixie-issue-content">
+                <div>
+                    <h3 class="pixie-issue-title">자율주행 규제 완화되어<br>로보택시 상용화 박차</h3>
+                </div>
+                <div class="pixie-issue-card short" style="margin: 20px 0; border-radius: 20px;">
+                    <div>
+                        <button class="pixie-issue-btn">관련 기사 원문</button>
+                        <p class="pixie-issue-label">핵심 종목</p>
+                        <p class="pixie-issue-stocks">라닉스 – 자율주행용 통신칩 기술 보유<br>세코닉스 – 카메라 모듈 수요 증가 수혜</p>
+                        <p class="pixie-issue-highlight">완전자율주행 상용화 수혜, 부품주 중심으로 관심↑</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 트렌드 맵 -->
+<section class="pixie-trends-section">
+    <h2 class="pixie-section-title">트렌드 맵</h2>
+    <p class="pixie-trends-description">AI 비서 픽시가 산업별 트렌드 맵을 시각화하고, 소셜 투자 피드를 분석해 주목받는 키워드를 알려드려요.</p>
+    <p class="pixie-trends-note">언급량 급증 (전일 대비 +%)</p>
+    
+    <div class="pixie-trends-row">
+        <a href="#" class="pixie-trend-tag">#AI 반도체</a>
+        <a href="#" class="pixie-trend-tag active">#삼성전자</a>
+        <a href="#" class="pixie-trend-tag">#2차전지</a>
+    </div>
+    
+    <div class="pixie-trends-row">
+        <a href="#" class="pixie-trend-tag active">#디스플레이</a>
+        <a href="#" class="pixie-trend-tag">#바이오</a>
+        <a href="#" class="pixie-trend-tag">#유전자 치료제</a>
+        <a href="#" class="pixie-trend-tag active">#테슬라 옵티머스</a>
+    </div>
+    
+    <div class="pixie-trends-row">
+        <a href="#" class="pixie-trend-tag active">#IRA 법안</a>
+        <a href="#" class="pixie-trend-tag">#탄소배출권</a>
+        <a href="#" class="pixie-trend-tag">#토목 SOC</a>
+    </div>
+</section>
+
+<!-- 서비스 소개 -->
+<section class="pixie-services-section">
+    <h2 class="pixie-services-title">똑똑한 투자 전략,<br>지금 바로 픽시와 시작해보세요</h2>
+    
+    <div class="pixie-services-grid">
+        <div class="pixie-service-card">
+            <div>
+                <div class="pixie-service-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <p class="pixie-service-label">투자 설문</p>
+                <h3 class="pixie-service-title">투자 성향 분석</h3>
+                <p class="pixie-service-description">10가지 문항에 답변하여 투자 스타일과 위험 성향을 파악하고,<br>이를 통해 맞춤형 투자 전략을 제시합니다.</p>
+            </div>
+            <a href="/survey" class="pixie-service-btn">
+                시작하기
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="pixie-service-card">
+            <div>
+                <div class="pixie-service-icon">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <p class="pixie-service-label">MY 투자</p>
+                <h3 class="pixie-service-title">포트폴리오 추천</h3>
+                <p class="pixie-service-description">AI 기반 알고리즘으로 분석된 최적의 포트폴리오를 추천합니다.<br>시장 변동성 및 수익률을 고려한 맞춤형 제안을 받아보세요.</p>
+            </div>
+            <a href="/my-investment" class="pixie-service-btn">
+                결과 보기
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="pixie-service-card">
+            <div>
+                <div class="pixie-service-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <p class="pixie-service-label">투자 챗봇</p>
+                <h3 class="pixie-service-title">AI 투자 챗봇, 픽시</h3>
+                <p class="pixie-service-description">24시간 전문가 수준의 상담을 제공하는 AI 투자 어시스턴트.<br>실시간 질문에 답변하고 맞춤형 투자 조언을 제공합니다.</p>
+            </div>
+            <a href="/chatbot" class="pixie-service-btn">
+                상담하기
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- 푸터 -->
+<footer class="pixie-footer">
+    <div class="pixie-footer-content">
+        <div class="pixie-footer-brand">
+            <div class="pixie-footer-logo">Pixie</div>
+            <p class="pixie-footer-tagline">당신의 똑똑한 투자 파트너, 픽시</p>
+        </div>
+        
+        <div class="pixie-footer-section">
+            <h4>Resources</h4>
+            <p>Desktop Web</p>
+        </div>
+        
+        <div class="pixie-footer-section">
+            <h4>Team 팀명</h4>
+        </div>
+        
+        <div class="pixie-footer-section">
+            <h4>Tools · Stack</h4>
+            <p>Figma</p>
+        </div>
+        
+        <div class="pixie-footer-section">
+            <h4>Legal</h4>
+            <p>Abuse</p>
+            <p>Terms</p>
+        </div>
+    </div>
+    
+    <div class="pixie-footer-bottom">
+        <p>© 2025 PIXIE All rights reserved.</p>
+        <p>데모 서비스입니다. 수집된 정보는 저장되지 않으며, 시연 목적 외에는 사용되지 않습니다</p>
+    </div>
+</footer>
+
+<script>
+// 페이지 로드 시 데이터 가져오기
+document.addEventListener('DOMContentLoaded', function() {
+    loadMarketSentiment();
+    loadIssueStocks();
+    checkWatchlist();
+});
+
+// 시장 감정 분석 데이터 로드
+async function loadMarketSentiment() {
+    try {
+        const response = await fetch('/api/news-sentiment');
+        const data = await response.json();
+        
+        if (data.success) {
+            displayMarketSentiment(data.sentiment_analysis);
+        }
+    } catch (error) {
+        console.error('시장 감정 분석 로드 실패:', error);
+        document.getElementById('marketSentimentBanner').style.display = 'none';
+    }
+}
+
+// 시장 감정 분석 표시
+function displayMarketSentiment(sentiment) {
+    const banner = document.getElementById('marketSentimentBanner');
+    const mood = sentiment.market_mood;
+    const distribution = sentiment.sentiment_distribution;
+    
+    let moodClass = 'neutral';
+    let moodIcon = '😐';
+    
+    if (mood.score >= 0.2) {
+        moodClass = 'positive';
+        moodIcon = '📈';
+    } else if (mood.score <= -0.2) {
+        moodClass = 'negative';
+        moodIcon = '📉';
+    }
+    
+    banner.innerHTML = `
+        <div class="sentiment-content">
+            <div class="sentiment-main">
+                <div class="sentiment-score">
+                    <span class="sentiment-icon">${moodIcon}</span>
+                    <span class="sentiment-value">${(sentiment.overall_sentiment * 100).toFixed(0)}점</span>
+                </div>
+                <div class="sentiment-mood ${moodClass}">${mood.mood}</div>
+                <div class="sentiment-description">${mood.description}</div>
+                <div class="sentiment-description" style="margin-top: 8px; font-weight: 500;">
+                    💡 ${mood.recommendation}
+                </div>
+            </div>
+            <div class="sentiment-stats">
+                <div class="sentiment-stat">
+                    <span class="sentiment-stat-value" style="color: #10b981;">${distribution.positive}</span>
+                    <span class="sentiment-stat-label">긍정 뉴스</span>
+                </div>
+                <div class="sentiment-stat">
+                    <span class="sentiment-stat-value" style="color: #6b7280;">${distribution.neutral}</span>
+                    <span class="sentiment-stat-label">중립 뉴스</span>
+                </div>
+                <div class="sentiment-stat">
+                    <span class="sentiment-stat-value" style="color: #ef4444;">${distribution.negative}</span>
+                    <span class="sentiment-stat-label">부정 뉴스</span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// 이슈 종목 로드
+async function loadIssueStocks() {
+    try {
+        // 사용자 관심 종목 기반 뉴스 로드
+        const response = await fetch('/api/news-portfolio?filter=domestic');
+        const data = await response.json();
+        
+        if (data.success && data.news_list.length > 0) {
+            displayIssueStocks(data.news_list);
+        }
+    } catch (error) {
+        console.error('이슈 종목 로드 실패:', error);
+        // 기본 종목 표시 유지
+    }
+}
+
+// 이슈 종목 표시
+function displayIssueStocks(newsList) {
+    const grid = document.getElementById('issueStocksGrid');
+    
+    // 종목별로 뉴스 그룹화
+    const stockNews = {};
+    newsList.forEach(news => {
+        // 제목에서 종목명 추출
+        const stockPattern = /(삼성전자|SK하이닉스|LG에너지솔루션|현대차|기아|네이버|카카오)/g;
+        const matches = news.title.match(stockPattern);
+        
+        if (matches) {
+            matches.forEach(stock => {
+                if (!stockNews[stock]) {
+                    stockNews[stock] = [];
+                }
+                stockNews[stock].push(news);
+            });
+        }
+    });
+    
+    // 상위 4개 종목만 표시
+    const topStocks = Object.entries(stockNews)
+        .sort((a, b) => b[1].length - a[1].length)
+        .slice(0, 4);
+    
+    if (topStocks.length > 0) {
+        // 기존 내용 유지하면서 관련 뉴스 수 업데이트
+        const cards = grid.querySelectorAll('.pixie-issue-card.tall');
+        cards.forEach((card, index) => {
+            if (index < topStocks.length) {
+                const [stock, news] = topStocks[index];
+                const btn = card.querySelector('.pixie-issue-btn');
+                if (btn) {
+                    btn.textContent = `관련 뉴스 ${news.length}건`;
+                    btn.onclick = () => window.location.href = '/news';
+                }
+            }
+        });
+    }
+}
+
+// 관심 종목 확인
+async function checkWatchlist() {
+    try {
+        const response = await fetch('/api/watchlist');
+        const data = await response.json();
+        
+        if (data.success && data.watchlist.length === 0) {
+            document.getElementById('watchlistNotice').style.display = 'flex';
+        }
+    } catch (error) {
+        console.error('관심 종목 확인 실패:', error);
+    }
+}
+
+// 기존 트렌드 태그 인터랙션
+document.querySelectorAll('.pixie-trend-tag').forEach(tag => {
+    tag.addEventListener('click', function(e) {
+        e.preventDefault();
+        // 현재 활성화된 태그들 제거
+        document.querySelectorAll('.pixie-trend-tag.active').forEach(activeTag => {
+            if (activeTag !== this) {
+                activeTag.classList.remove('active');
+            }
+        });
+        // 클릭된 태그 토글
+        this.classList.toggle('active');
+    });
+});
+
+// 네비게이션 스크롤 효과
+window.addEventListener('scroll', function() {
+    const navbar = document.querySelector('.pixie-navbar');
+    if (window.scrollY > 100) {
+        navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+        navbar.style.backdropFilter = 'blur(10px)';
+    } else {
+        navbar.style.background = 'var(--pixie-white)';
+        navbar.style.backdropFilter = 'none';
+    }
+});
+
+// 부드러운 스크롤
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+</script>
+{% endblock %} 

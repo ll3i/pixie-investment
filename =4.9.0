@@ -1,0 +1,4 @@
+Requirement already satisfied: beautifulsoup4 in c:\users\work4\appdata\local\programs\python\python39\lib\site-packages (4.13.3)
+Requirement already satisfied: lxml in c:\users\work4\appdata\local\programs\python\python39\lib\site-packages (5.3.0)
+Requirement already satisfied: soupsieve>1.2 in c:\users\work4\appdata\local\programs\python\python39\lib\site-packages (from beautifulsoup4) (2.6)
+Requirement already satisfied: typing-extensions>=4.0.0 in c:\users\work4\appdata\local\programs\python\python39\lib\site-packages (from beautifulsoup4) (4.14.1)

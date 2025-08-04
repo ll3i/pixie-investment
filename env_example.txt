@@ -1,0 +1,22 @@
+# Flask 설정
+FLASK_SECRET_KEY=your_secret_key_here
+FLASK_ENV=development
+
+# OpenAI API 설정
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Supabase 설정
+SUPABASE_URL=your_supabase_url_here
+SUPABASE_KEY=your_supabase_key_here
+
+# CLOVA API 설정 (선택사항)
+CLOVA_API_HOST=https://api.clovastudio.com
+CLOVA_API_KEY=your_clova_api_key_here
+CLOVA_REQUEST_ID=your_request_id_here
+
+# API 설정
+API_MAX_RETRIES=3
+API_RETRY_DELAY=1
+
+# 데이터베이스 설정
+DATABASE_URL=sqlite:///newsbot.db 

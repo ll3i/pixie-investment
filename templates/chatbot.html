@@ -1,0 +1,1082 @@
+{% extends "layout.html" %}
+
+{% block title %}Pixie - AI 투자 어드바이저{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Pixie Chat Interface Styles */
+    .pixie-chatbot-container {
+        padding: 40px 20px;
+        max-width: 900px;
+        margin: 0 auto;
+        min-height: calc(100vh - 200px);
+    }
+    
+    .pixie-chat-wrapper {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        height: 90vh;
+        max-height: 900px;
+        min-height: 600px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border-color);
+        transition: all 0.2s ease;
+    }
+    
+    .pixie-chat-header {
+        background: var(--gradient-primary);
+        padding: 16px 24px;
+        display: flex;
+        align-items: center;
+        color: white;
+        flex-shrink: 0;
+    }
+    
+    .pixie-chat-avatar {
+        width: 48px;
+        height: 48px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 16px;
+        font-size: 20px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .pixie-chat-info h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 700;
+        color: white;
+    }
+    
+    .pixie-chat-info p {
+        margin: 4px 0 0;
+        font-size: 14px;
+        opacity: 0.9;
+        color: white;
+    }
+    
+    .pixie-chat-close {
+        margin-left: auto;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .pixie-chat-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .pixie-chat-messages {
+        flex-grow: 1;
+        padding: 24px;
+        overflow-y: auto;
+        background: var(--light-color);
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border-color) transparent;
+    }
+    
+    .pixie-chat-messages::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .pixie-chat-messages::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    .pixie-chat-messages::-webkit-scrollbar-thumb {
+        background-color: var(--border-color);
+        border-radius: 3px;
+    }
+    
+    .pixie-message {
+        max-width: 75%;
+        animation: pixieMessageSlide 0.3s ease-out;
+        position: relative;
+    }
+    
+    @keyframes pixieMessageSlide {
+        from { 
+            opacity: 0; 
+            transform: translateY(10px); 
+        }
+        to { 
+            opacity: 1; 
+            transform: translateY(0); 
+        }
+    }
+    
+    .pixie-message-user {
+        background: var(--gradient-primary);
+        color: white;
+        padding: 16px 20px;
+        border-radius: 20px 20px 4px 20px;
+        margin-left: auto;
+        box-shadow: var(--shadow-sm);
+        font-size: 15px;
+        line-height: 1.5;
+        word-wrap: break-word;
+    }
+    
+    .pixie-message-ai {
+        background: white;
+        color: var(--text-primary);
+        padding: 16px 20px;
+        border-radius: 20px 20px 20px 4px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border-color);
+        font-size: 15px;
+        line-height: 1.6;
+        word-wrap: break-word;
+    }
+    
+    .pixie-message-ai .message-content p {
+        margin-bottom: 12px;
+    }
+    
+    .pixie-message-ai .message-content p:last-child {
+        margin-bottom: 0;
+    }
+    
+    /* AI 에이전트 메시지 스타일 */
+    .pixie-message-agent {
+        background: #f0f7ff;
+        color: var(--text-primary);
+        padding: 16px 20px;
+        border-radius: 20px 20px 20px 4px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid #cce5ff;
+        font-size: 15px;
+        line-height: 1.6;
+        word-wrap: break-word;
+        margin-bottom: 12px;
+    }
+    
+    .agent-label {
+        font-weight: 700;
+        color: #1454FE;
+        font-size: 13px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .agent-label .agent-icon {
+        width: 20px;
+        height: 20px;
+        background: #1454FE;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 900;
+    }
+    
+    .pixie-message-agent.agent-a2 {
+        background: #fff5e6;
+        border-color: #ffd6a5;
+    }
+    
+    .pixie-message-agent.agent-a2 .agent-label {
+        color: #ff8c00;
+    }
+    
+    .pixie-message-agent.agent-a2 .agent-icon {
+        background: #ff8c00;
+    }
+    
+    .pixie-message-agent.agent-b {
+        background: #e6f9f5;
+        border-color: #a5e5d6;
+    }
+    
+    .pixie-message-agent.agent-b .agent-label {
+        color: #00a884;
+    }
+    
+    .pixie-message-agent.agent-b .agent-icon {
+        background: #00a884;
+    }
+    
+    .agent-conversation-divider {
+        text-align: center;
+        margin: 20px 0;
+        position: relative;
+    }
+    
+    .agent-conversation-divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: var(--border-color);
+    }
+    
+    .agent-conversation-divider span {
+        background: var(--light-color);
+        padding: 0 16px;
+        color: var(--text-secondary);
+        font-size: 13px;
+        position: relative;
+        font-weight: 500;
+    }
+    
+    .pixie-typing-indicator {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 16px 20px;
+        background: white;
+        border-radius: 20px 20px 20px 4px;
+        max-width: 70px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border-color);
+    }
+    
+    .pixie-typing-dot {
+        width: 6px;
+        height: 6px;
+        background-color: var(--primary-color);
+        border-radius: 50%;
+        animation: pixieTyping 1.4s infinite ease-in-out;
+    }
+    
+    .pixie-typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .pixie-typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    .pixie-typing-dot:nth-child(3) { animation-delay: 0s; }
+    
+    @keyframes pixieTyping {
+        0%, 80%, 100% {
+            transform: scale(0.8);
+            opacity: 0.5;
+        }
+        40% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    
+    .pixie-chat-input-container {
+        background: white;
+        padding: 16px 20px;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+    
+    .pixie-chat-input {
+        flex-grow: 1;
+        background: var(--light-color);
+        border: 2px solid var(--border-color);
+        border-radius: 22px;
+        padding: 12px 18px;
+        color: var(--text-primary);
+        font-size: 14px;
+        outline: none;
+        transition: all 0.2s ease;
+        font-family: inherit;
+    }
+    
+    .pixie-chat-input::placeholder {
+        color: var(--text-secondary);
+    }
+    
+    .pixie-chat-input:focus {
+        border-color: var(--primary-color);
+        background: white;
+        box-shadow: 0 0 0 3px rgba(20, 84, 254, 0.1);
+    }
+    
+    .pixie-send-button {
+        background: var(--gradient-primary);
+        border: none;
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: var(--shadow-sm);
+        flex-shrink: 0;
+    }
+    
+    .pixie-send-button:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .pixie-send-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .pixie-suggestions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        padding: 12px 20px 8px;
+        background: white;
+        flex-shrink: 0;
+    }
+    
+    .pixie-suggestion-chip {
+        background: var(--light-color);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 6px 14px;
+        color: var(--text-secondary);
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 500;
+    }
+    
+    .pixie-suggestion-chip:hover {
+        background: var(--primary-light);
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        transform: translateY(-1px);
+    }
+    
+    @media (max-width: 768px) {
+        .pixie-chatbot-container {
+            padding: 20px 16px;
+        }
+        
+        .pixie-chat-wrapper {
+            height: 92vh;
+            border-radius: 16px;
+        }
+        
+        .pixie-chat-header {
+            padding: 20px;
+        }
+        
+        .pixie-chat-messages {
+            padding: 16px;
+        }
+        
+        .pixie-message {
+            max-width: 85%;
+        }
+        
+        .pixie-chat-input-container {
+            padding: 16px;
+        }
+        
+        .pixie-suggestions {
+            padding: 12px 16px 8px;
+        }
+        
+        .pixie-suggestion-chip {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pixie-chatbot-container">
+    <div class="pixie-chat-wrapper">
+        <div class="pixie-chat-header">
+            <div class="pixie-chat-avatar">
+                ✨
+            </div>
+            <div class="pixie-chat-info">
+                <h2>Pixie AI 어드바이저</h2>
+                <p>투자에 대한 모든 질문에 답변해드립니다</p>
+            </div>
+            <button class="pixie-chat-close" onclick="window.location.href='/'">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="pixie-chat-messages" id="chatMessages">
+            <!-- 초기 메시지는 JavaScript에서 동적으로 추가됩니다 -->
+        </div>
+        
+        <div class="pixie-chat-input-container">
+            <input type="text" class="pixie-chat-input" id="chatInput" placeholder="투자에 대해 궁금한 점을 물어보세요...">
+            <button type="button" class="pixie-send-button" id="sendButton" style="background: #1454FE;">
+                전송
+            </button>
+        </div>
+        
+        <!-- AI Status Indicator -->
+        <div class="pixie-ai-status" id="aiStatus" style="display: none; background: #f5f5f5; padding: 8px 24px; text-align: center; font-size: 14px; color: #666; border-top: 1px solid #e5e5e5;">
+            <span id="aiStatusText">AI-A is thinking...</span>
+        </div>
+        
+        <div class="pixie-suggestions">
+            <div class="pixie-suggestion-chip" data-suggestion="나의 투자 성향에 어울리는 주식 추천해줘">투자 성향 기반 추천</div>
+            <div class="pixie-suggestion-chip" data-suggestion="포트폴리오 구성법">포트폴리오 구성</div>
+            <div class="pixie-suggestion-chip" data-suggestion="리스크 관리 방법">리스크 관리</div>
+            <div class="pixie-suggestion-chip" data-suggestion="오늘의 시장 분석">시장 분석</div>
+        </div>
+        
+        <!-- 시장 분석 버튼 -->
+        <div style="padding: 12px 20px; border-top: 1px solid var(--border-color); background: white; flex-shrink: 0;">
+            <button type="button" id="marketAnalysisBtn" onclick="requestMarketAnalysis()" style="
+                width: 100%;
+                padding: 10px 20px;
+                background: linear-gradient(135deg, #1454FE 0%, #0F43C9 100%);
+                color: white;
+                border: none;
+                border-radius: 20px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 2px 8px rgba(20, 84, 254, 0.2);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+            " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 16px rgba(20, 84, 254, 0.3)';" 
+               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(20, 84, 254, 0.2)';"
+               onmousedown="this.style.transform='translateY(0)';"
+               onmouseup="this.style.transform='translateY(-2px)';">
+                <span style="font-size: 18px;">📊</span>
+                실시간 시장 분석 (AI 뉴스 분석 기반)
+            </button>
+            <p style="text-align: center; color: #666; font-size: 12px; margin-top: 6px; margin-bottom: 4px;">
+                최신 뉴스 감정 분석을 기반으로 한 시장 동향을 알려드립니다
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let chatHistory = [];
+let isTyping = false;
+
+// 세션 ID 생성 및 관리
+function getSessionId() {
+    let sessionId = localStorage.getItem('chatbot_session_id');
+    if (!sessionId) {
+        // UUID 형태의 세션 ID 생성
+        sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('chatbot_session_id', sessionId);
+    }
+    return sessionId;
+}
+
+// 페이지 로드 시 이벤트 리스너 설정 및 채팅 기록 로드
+document.addEventListener('DOMContentLoaded', function() {
+    // 전송 버튼 이벤트 리스너
+    const sendButton = document.getElementById('sendButton');
+    if (sendButton) {
+        sendButton.addEventListener('click', sendMessage);
+    }
+    
+    // 입력 필드 엔터 키 이벤트 리스너
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) {
+        chatInput.addEventListener('keypress', handleKeyPress);
+    }
+    
+    // 제안 칩 이벤트 리스너
+    const suggestionChips = document.querySelectorAll('.pixie-suggestion-chip');
+    suggestionChips.forEach(chip => {
+        chip.addEventListener('click', function() {
+            const suggestion = this.getAttribute('data-suggestion');
+            sendSuggestion(suggestion);
+        });
+    });
+    
+    // 프로필 상태 확인 및 초기 메시지 업데이트
+    checkProfileStatus();
+    // 채팅 기록은 초기 메시지 표시 후에 로드
+    setTimeout(() => {
+        loadChatHistory();
+    }, 100);
+    
+    // 설문 결과 보기 버튼 이벤트 리스너
+    const viewResultsButton = document.getElementById('viewSurveyResults');
+    if (viewResultsButton) {
+        viewResultsButton.addEventListener('click', showSurveyResults);
+    }
+});
+
+async function checkProfileStatus() {
+    try {
+        const response = await fetch('/api/profile-status');
+        const data = await response.json();
+        
+        const chatMessages = document.getElementById('chatMessages');
+        
+        // 기존 메시지가 없을 때만 추가
+        if (chatMessages.children.length === 0) {
+            const initialMessage = document.createElement('div');
+            initialMessage.className = 'pixie-message pixie-message-ai';
+            initialMessage.innerHTML = `
+                <div class="message-content">
+                    <p>안녕하세요! 저는 Pixie AI 투자 어드바이저입니다. 투자에 관한 모든 질문에 답변해드릴 수 있습니다.</p>
+                    <p>먼저 투자 성향 설문을 완료해 주세요! 설문이 끝나면 맞춤형 분석과 포트폴리오 추천을 드릴 수 있습니다.</p>
+                    <div style="display: flex; gap: 10px; margin-top: 12px;">
+                        <a href="/survey" class="pixie-survey-button" style="display: inline-block; padding: 10px 20px; background: #1454FE; color: white; text-decoration: none; border-radius: 20px; font-weight: 500;">투자 설문 시작하기</a>
+                        <a href="#" class="pixie-survey-results-button" onclick="showSurveyResults(event)" style="display: inline-block; padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 20px; font-weight: 500;">설문 결과 보기</a>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(initialMessage);
+        }
+    } catch (error) {
+        console.error('프로필 상태 확인 오류:', error);
+    }
+}
+
+function handleKeyPress(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+    }
+}
+
+function sendMessage() {
+    console.log('sendMessage called');
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    
+    console.log('Message:', message, 'isTyping:', isTyping);
+    
+    if (!message || isTyping) return;
+    
+    // 사용자 메시지 추가
+    addMessage(message, 'user');
+    input.value = '';
+    
+    // AI 응답 생성
+    generateAIResponse(message);
+}
+
+function sendSuggestion(text) {
+    document.getElementById('chatInput').value = text;
+    sendMessage();
+}
+
+function addMessage(content, sender) {
+    const chatMessages = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `pixie-message pixie-message-${sender}`;
+    
+    if (sender === 'user') {
+        messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
+    } else {
+        messageDiv.innerHTML = `<div class="message-content"><p>${content}</p></div>`;
+    }
+    
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // 채팅 기록에 추가
+    chatHistory.push({ sender, content, timestamp: new Date().toISOString() });
+    saveChatHistory();
+}
+
+function addAgentMessage(content, agent) {
+    const chatMessages = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    
+    // 에이전트에 따른 클래스 설정
+    let agentClass = '';
+    let agentLabel = '';
+    let agentIcon = '';
+    
+    if (agent === 'AI-A2') {
+        agentClass = 'agent-a2';
+        agentLabel = 'AI-A2 (투자 분석가)';
+        agentIcon = 'A2';
+    } else if (agent === 'AI-B') {
+        agentClass = 'agent-b';
+        agentLabel = 'AI-B (금융 데이터 전문가)';
+        agentIcon = 'B';
+    } else {
+        agentClass = '';
+        agentLabel = agent;
+        agentIcon = 'AI';
+    }
+    
+    messageDiv.className = `pixie-message pixie-message-agent ${agentClass}`;
+    messageDiv.innerHTML = `
+        <div class="agent-label">
+            <span class="agent-icon">${agentIcon}</span>
+            ${agentLabel}
+        </div>
+        <div class="message-content">${content}</div>
+    `;
+    
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // 채팅 기록에 추가 (에이전트 메시지도 저장)
+    chatHistory.push({ 
+        sender: 'agent', 
+        agent: agent,
+        content, 
+        timestamp: new Date().toISOString() 
+    });
+    saveChatHistory();
+}
+
+function showTypingIndicator() {
+    const chatMessages = document.getElementById('chatMessages');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'pixie-typing-indicator';
+    typingDiv.id = 'typingIndicator';
+    typingDiv.innerHTML = `
+        <div class="pixie-typing-dot"></div>
+        <div class="pixie-typing-dot"></div>
+        <div class="pixie-typing-dot"></div>
+    `;
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function hideTypingIndicator() {
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+}
+
+async function generateAIResponse(userMessage) {
+    isTyping = true;
+    showTypingIndicator();
+    
+    try {
+        // Check for survey status using EventSource for streaming updates
+        const eventSource = new EventSource(`/api/chat-stream?message=${encodeURIComponent(userMessage)}`);
+        let fullResponse = '';
+        let currentAgent = '';
+        let agentResponses = {}; // Store responses from each agent
+        
+        eventSource.addEventListener('status', function(event) {
+            const data = JSON.parse(event.data);
+            if (data.agent && data.status === 'thinking') {
+                showAIStatus(`${data.agent} is thinking...`);
+                currentAgent = data.agent;
+            }
+        });
+        
+        // New event listener for agent responses
+        eventSource.addEventListener('agent_response', function(event) {
+            const data = JSON.parse(event.data);
+            if (data.agent && data.content) {
+                hideTypingIndicator();
+                // Add agent response to chat
+                addAgentMessage(data.content, data.agent);
+                agentResponses[data.agent] = data.content;
+                // Show typing indicator for next agent
+                if (data.agent !== 'Final') {
+                    showTypingIndicator();
+                }
+            }
+        });
+        
+        eventSource.addEventListener('message', function(event) {
+            const data = JSON.parse(event.data);
+            if (data.content) {
+                fullResponse += data.content;
+            }
+        });
+        
+        eventSource.addEventListener('complete', function(event) {
+            hideTypingIndicator();
+            hideAIStatus();
+            eventSource.close();
+            
+            // If we have agent responses, add a divider before final response
+            if (Object.keys(agentResponses).length > 0 && fullResponse) {
+                // Add conversation divider
+                const chatMessages = document.getElementById('chatMessages');
+                const divider = document.createElement('div');
+                divider.className = 'agent-conversation-divider';
+                divider.innerHTML = '<span>최종 답변</span>';
+                chatMessages.appendChild(divider);
+                
+                // Add final response with agent conversation summary
+                let finalMessageContent = fullResponse;
+                
+                // Optional: Add brief summary of agent conversation
+                if (agentResponses['AI-A2'] || agentResponses['AI-B']) {
+                    finalMessageContent = `<p>${fullResponse}</p>`;
+                    finalMessageContent += `<div style="margin-top: 15px; padding: 10px; background: #f0f7ff; border-radius: 8px; font-size: 13px; color: #666;">`;
+                    finalMessageContent += `<strong>AI 분석 요약:</strong><br>`;
+                    if (agentResponses['AI-A2']) {
+                        finalMessageContent += `• AI-A2가 투자 성향을 분석하여 맞춤형 정보를 요청했습니다.<br>`;
+                    }
+                    if (agentResponses['AI-B']) {
+                        finalMessageContent += `• AI-B가 실시간 금융 데이터를 제공했습니다.`;
+                    }
+                    finalMessageContent += `</div>`;
+                }
+                
+                addMessage(finalMessageContent, 'ai');
+            } else if (Object.keys(agentResponses).length === 0 && fullResponse) {
+                // No agent responses, show the full response
+                addMessage(fullResponse, 'ai');
+            }
+            isTyping = false;
+        });
+        
+        eventSource.addEventListener('error', function(event) {
+            console.error('EventSource error:', event);
+            eventSource.close();
+            // Fallback to regular POST
+            generateAIResponseFallback(userMessage);
+        });
+        
+    } catch (error) {
+        console.error('Error:', error);
+        generateAIResponseFallback(userMessage);
+    }
+}
+
+async function generateAIResponseFallback(userMessage) {
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: userMessage,
+                session_id: 'chatbot_session'
+            })
+        });
+        
+        const data = await response.json();
+        
+        hideTypingIndicator();
+        hideAIStatus();
+        
+        if (data.success) {
+            addMessage(data.response, 'ai');
+            if (data.require_survey) {
+                // Add survey button if needed
+                const chatMessages = document.getElementById('chatMessages');
+                const surveyBtn = document.createElement('div');
+                surveyBtn.innerHTML = '<a href="/survey" class="pixie-survey-button" style="display: inline-block; margin: 12px 0; padding: 10px 20px; background: #1454FE; color: white; text-decoration: none; border-radius: 20px; font-weight: 500;">투자 설문 시작하기</a>';
+                chatMessages.appendChild(surveyBtn);
+            }
+        } else {
+            addMessage('죄송합니다. 일시적인 오류가 발생했습니다. 다시 시도해주세요.', 'ai');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        hideTypingIndicator();
+        hideAIStatus();
+        addMessage('죄송합니다. 네트워크 오류가 발생했습니다. 다시 시도해주세요.', 'ai');
+    }
+    
+    isTyping = false;
+}
+
+function loadChatHistory() {
+    fetch('/api/chat-history')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.history && data.history.length > 0) {
+                // 기본 메시지는 제외하고 실제 대화 내용만 표시
+                const filteredHistory = data.history.filter(msg => {
+                    return !msg.content.includes('현재 귀하의 투자 성향을 고려한 포트폴리오를 추천해 드립니다:') &&
+                           !msg.content.includes('안녕하세요! 저는 Pixie AI 투자 어드바이저입니다.');
+                });
+                
+                if (filteredHistory.length > 0) {
+                    chatHistory = filteredHistory;
+                    // 채팅 메시지 영역 초기화
+                    const chatMessages = document.getElementById('chatMessages');
+                    chatMessages.innerHTML = '';
+                    
+                    // 초기 메시지 다시 추가
+                    const initialMessage = document.createElement('div');
+                    initialMessage.className = 'pixie-message pixie-message-ai';
+                    initialMessage.innerHTML = `
+                        <div class="message-content">
+                            <p>안녕하세요! 저는 Pixie AI 투자 어드바이저입니다. 투자에 관한 모든 질문에 답변해드릴 수 있습니다.</p>
+                            <p>먼저 투자 성향 설문을 완료해 주세요! 설문이 끝나면 맞춤형 분석과 포트폴리오 추천을 드릴 수 있습니다.</p>
+                            <div style="display: flex; gap: 10px; margin-top: 12px;">
+                                <a href="/survey" class="pixie-survey-button" style="display: inline-block; padding: 10px 20px; background: #1454FE; color: white; text-decoration: none; border-radius: 20px; font-weight: 500;">투자 설문 시작하기</a>
+                                <a href="#" class="pixie-survey-results-button" onclick="showSurveyResults(event)" style="display: inline-block; padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 20px; font-weight: 500;">설문 결과 보기</a>
+                            </div>
+                        </div>
+                    `;
+                    chatMessages.appendChild(initialMessage);
+                    
+                    // 채팅 기록을 화면에 표시
+                    filteredHistory.forEach(msg => {
+                        if (msg.sender === 'agent' && msg.agent) {
+                            // 에이전트 메시지
+                            addAgentMessage(msg.content, msg.agent);
+                        } else {
+                            // 일반 메시지
+                            addMessage(msg.content, msg.speaker || msg.sender);
+                        }
+                    });
+                }
+            }
+        })
+        .catch(error => {
+            console.error('채팅 기록 로드 오류:', error);
+        });
+}
+
+function saveChatHistory() {
+    // 채팅 기록을 서버에 저장
+    fetch('/api/chat-history', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            history: chatHistory
+        })
+    }).catch(error => {
+        console.error('채팅 기록 저장 오류:', error);
+    });
+}
+
+function showAIStatus(text) {
+    const aiStatus = document.getElementById('aiStatus');
+    const aiStatusText = document.getElementById('aiStatusText');
+    if (aiStatus && aiStatusText) {
+        aiStatusText.textContent = text;
+        aiStatus.style.display = 'block';
+    }
+}
+
+function hideAIStatus() {
+    const aiStatus = document.getElementById('aiStatus');
+    if (aiStatus) {
+        aiStatus.style.display = 'none';
+    }
+}
+
+async function showSurveyResults(event) {
+    if (event) event.preventDefault();
+    
+    try {
+        // 프로필 상태 확인
+        const statusResponse = await fetch('/api/profile-status');
+        const statusData = await statusResponse.json();
+        
+        if (!statusData.success || !statusData.has_profile) {
+            addMessage('아직 투자 설문을 완료하지 않으셨습니다. 먼저 설문을 완료해주세요.', 'ai');
+            return;
+        }
+        
+        // 프로필 데이터 가져오기
+        const profileResponse = await fetch('/api/profile');
+        const profileData = await profileResponse.json();
+        
+        if (profileData.success && profileData.profile) {
+            const profile = profileData.profile;
+            
+            // 투자 성향 분석 결과 메시지 생성
+            let resultMessage = '<div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 15px;">';
+            resultMessage += '<h3 style="color: #1454FE; margin-bottom: 20px;">📊 투자 성향 분석 결과</h3>';
+            
+            // Risk Tolerance
+            resultMessage += '<div style="margin-bottom: 15px;">';
+            resultMessage += '<h4 style="color: #333; margin-bottom: 5px;">Risk Tolerance</h4>';
+            resultMessage += '<p style="color: #666; line-height: 1.6;">';
+            resultMessage += `위험 감수성 점수가 <strong>${profile.risk_score || 0}점</strong>으로 나왔습니다. `;
+            
+            if (profile.risk_score >= 4) {
+                resultMessage += '이는 투자자가 높은 위험을 감수하는 것을 극도로 싫어한다는 것을 의미합니다. 이러한 성향은 안정적인 투자를 선호하게 만들지만, 높은 수익을 얻을 수 있는 기회를 놓치게 될 수도 있습니다.';
+            } else if (profile.risk_score >= 2) {
+                resultMessage += '이는 투자자가 적절한 수준의 위험을 감수할 수 있다는 것을 의미합니다. 균형잡힌 포트폴리오 구성이 가능합니다.';
+            } else {
+                resultMessage += '이는 투자자가 높은 위험을 기꺼이 감수한다는 것을 의미합니다. 고수익 고위험 투자에 적합하지만, 손실 위험도 큽니다.';
+            }
+            resultMessage += '</p></div>';
+            
+            // Investment Time Horizon
+            resultMessage += '<div style="margin-bottom: 15px;">';
+            resultMessage += '<h4 style="color: #333; margin-bottom: 5px;">Investment Time Horizon</h4>';
+            resultMessage += '<p style="color: #666; line-height: 1.6;">';
+            
+            const timeScore = profile.answers?.q2 || 1;
+            resultMessage += `투자 시간 범위 점수가 <strong>${timeScore === 1 ? '-1.0' : timeScore === 2 ? '0' : '1.0'}점</strong>으로 나왔습니다. `;
+            
+            if (timeScore <= 2) {
+                resultMessage += '이는 투자자가 단기적인 수익을 추구하는 경향이 있다는 것을 의미합니다. 단기적인 투자는 높은 위험을 감수해야 하며, 장기적인 투자에 비해 수익률이 낮을 가능성이 높습니다.';
+            } else {
+                resultMessage += '이는 투자자가 장기적인 투자를 선호한다는 것을 의미합니다. 장기적인 투자는 시장 변동성을 극복하고 안정적인 수익을 얻을 수 있습니다.';
+            }
+            resultMessage += '</p></div>';
+            
+            // Financial Goal Orientation
+            resultMessage += '<div style="margin-bottom: 15px;">';
+            resultMessage += '<h4 style="color: #333; margin-bottom: 5px;">Financial Goal Orientation</h4>';
+            resultMessage += '<p style="color: #666; line-height: 1.6;">';
+            
+            const goalScore = profile.answers?.q5 || 1;
+            resultMessage += `재무 목표 지향성 점수가 <strong>${goalScore === 1 ? '-2.0' : goalScore === 2 ? '-1.0' : goalScore === 3 ? '0' : goalScore === 4 ? '1.0' : '2.0'}점</strong>으로 나왔습니다. `;
+            
+            resultMessage += '이는 투자자가 명확한 재무 목표를 가지고 있지 않을 가능성이 높다는 것을 의미합니다. 재무 목표가 명확하지 않으면 투자 결정에 어려움을 겪을 수 있으며, 투자 계획을 세우는 것도 어렵습니다. 재무 목표를 설정하고, 그에 맞는 투자 계획을 세우는 것이 중요합니다.';
+            resultMessage += '</p></div>';
+            
+            // Information Processing Style
+            resultMessage += '<div style="margin-bottom: 15px;">';
+            resultMessage += '<h4 style="color: #333; margin-bottom: 5px;">Information Processing Style</h4>';
+            resultMessage += '<p style="color: #666; line-height: 1.6;">';
+            
+            const infoScore = profile.answers?.q7 || 1;
+            resultMessage += `정보 처리 스타일 점수가 <strong>${infoScore === 1 ? '-2.0' : infoScore === 2 ? '-1.0' : infoScore === 3 ? '0' : infoScore === 4 ? '1.0' : '2.0'}점</strong>으로 나왔습니다. `;
+            
+            resultMessage += '이는 투자자가 정보를 적극적으로 수집하고 분석하는 것을 어려워한다는 것을 의미합니다. 투자 결정을 내릴 때는 충분한 정보를 수집하고 분석하는 것이 중요합니다. 투자 관련 정보를 쉽게 이해할 수 있는 방법을 찾는 것이 좋습니다.';
+            resultMessage += '</p></div>';
+            
+            // Investment Fear
+            resultMessage += '<div style="margin-bottom: 15px;">';
+            resultMessage += '<h4 style="color: #333; margin-bottom: 5px;">Investment Fear</h4>';
+            resultMessage += '<p style="color: #666; line-height: 1.6;">';
+            
+            const fearScore = profile.answers?.q9 || 1;
+            resultMessage += `투자 두려움 점수가 <strong>${fearScore === 1 ? '-2.0' : fearScore === 2 ? '-1.0' : fearScore === 3 ? '0' : fearScore === 4 ? '1.0' : '2.0'}점</strong>으로 나왔습니다. `;
+            
+            resultMessage += '이는 투자에 대한 두려움이 크지 않다는 것을 의미합니다. 하지만, 위험 감수성이 매우 낮기 때문에 적극적인 투자를 하기는 어려울 것입니다. 안정적인 자산에 투자하는 것이 좋습니다.';
+            resultMessage += '</p></div>';
+            
+            // Investment Confidence
+            resultMessage += '<div style="margin-bottom: 15px;">';
+            resultMessage += '<h4 style="color: #333; margin-bottom: 5px;">Investment Confidence</h4>';
+            resultMessage += '<p style="color: #666; line-height: 1.6;">';
+            
+            const confidenceScore = profile.answers?.q10 || 1;
+            resultMessage += `투자 자신감 점수가 <strong>${confidenceScore === 1 ? '-3.0' : confidenceScore === 2 ? '-1.5' : confidenceScore === 3 ? '0' : confidenceScore === 4 ? '1.5' : '3.0'}점</strong>으로 나왔습니다. `;
+            
+            resultMessage += '이는 투자에 대한 자신감이 부족하다는 것을 의미합니다. 자신감이 부족하면 투자 결정을 내리는 것이 어려워지고, 투자 성과에 대한 만족도가 낮아질 수 있습니다. 자신감을 높이기 위해 투자 관련 지식을 습득하고, 투자 경험을 쌓는 것이 중요합니다.';
+            resultMessage += '</p></div>';
+            
+            // Overall Evaluation
+            resultMessage += '<div style="margin-bottom: 15px; background: #e7f0ff; padding: 15px; border-radius: 8px;">';
+            resultMessage += '<h4 style="color: #1454FE; margin-bottom: 10px;">종합 평가</h4>';
+            resultMessage += '<p style="color: #333; line-height: 1.6; margin-bottom: 10px;">';
+            resultMessage += `귀하의 투자 성향은 <strong>${profile.personality_type || '분석 중'}</strong>입니다. `;
+            
+            if (profile.personality_type === '공격투자형') {
+                resultMessage += '높은 수익을 추구하며 위험을 감수할 수 있는 투자자입니다. 성장주, 테마주, 해외주식 등 고위험 고수익 상품에 적합합니다.';
+            } else if (profile.personality_type === '적극투자형') {
+                resultMessage += '수익을 추구하면서도 일정 수준의 위험 관리를 하는 투자자입니다. 성장 가능성이 높은 우량주와 일부 성장주를 조합한 포트폴리오가 적합합니다.';
+            } else if (profile.personality_type === '위험중립형') {
+                resultMessage += '안정성과 수익성의 균형을 추구하는 투자자입니다. 대형 우량주 중심으로 일부 성장주를 포함한 균형잡힌 포트폴리오가 적합합니다.';
+            } else if (profile.personality_type === '안정추구형') {
+                resultMessage += '원금 보존을 중시하며 안정적인 수익을 추구하는 투자자입니다. 배당주, 대형 우량주 중심의 안정적인 포트폴리오가 적합합니다.';
+            } else {
+                resultMessage += '원금 보존을 최우선으로 하는 보수적인 투자자입니다. 예금, 채권, 대형 우량주 위주의 매우 안정적인 포트폴리오가 적합합니다.';
+            }
+            
+            resultMessage += '</p>';
+            resultMessage += '<p style="color: #333; line-height: 1.6;">';
+            resultMessage += '투자는 자신의 성향에 맞는 전략을 선택하는 것이 중요합니다. 위험을 너무 회피하면 수익 기회를 놓칠 수 있고, 과도한 위험을 감수하면 큰 손실을 볼 수 있습니다. 자신의 투자 성향을 잘 이해하고, 그에 맞는 투자 전략을 수립하시기 바랍니다.';
+            resultMessage += '</p>';
+            resultMessage += '</div>';
+            
+            resultMessage += '</div>';
+            
+            addMessage(resultMessage, 'ai');
+            
+            // 추가 안내 메시지
+            setTimeout(() => {
+                addMessage('투자 성향을 바탕으로 구체적인 종목 추천을 원하시면 "내 투자 성향에 맞는 코스닥 종목 추천해줘" 라고 물어보세요!', 'ai');
+            }, 1000);
+            
+        } else {
+            addMessage('투자 성향 정보를 불러오는 중 오류가 발생했습니다. 다시 시도해주세요.', 'ai');
+        }
+    } catch (error) {
+        console.error('설문 결과 표시 오류:', error);
+        addMessage('설문 결과를 표시하는 중 오류가 발생했습니다.', 'ai');
+    }
+}
+
+// 시장 분석 요청 함수
+async function requestMarketAnalysis() {
+    const marketAnalysisBtn = document.getElementById('marketAnalysisBtn');
+    if (marketAnalysisBtn) {
+        marketAnalysisBtn.disabled = true;
+        marketAnalysisBtn.innerHTML = '<span style="font-size: 20px;">⏳</span> 시장 분석 중...';
+    }
+    
+    // 사용자 메시지 추가
+    addMessage('[실시간 시장 분석 요청] 최신 뉴스 감정 분석을 기반으로 현재 시장 상황을 분석해주세요', 'user');
+    
+    try {
+        // 빠른 시장 분석 API 호출
+        const response = await fetch('/api/market-analysis-quick', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Session-ID': getSessionId()
+            },
+            body: JSON.stringify({})
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // 빠른 분석 결과 표시
+            addMessage(data.response, 'ai');
+            
+            // 추가 정보가 있으면 표시
+            if (data.data && data.data.keywords && data.data.keywords.length > 0) {
+                const keywordInfo = `\n📌 **주요 키워드**: ${data.data.keywords.slice(0, 5).map(k => k.keyword).join(', ')}`;
+                addMessage(keywordInfo, 'ai');
+            }
+        } else {
+            addMessage('시장 분석 중 오류가 발생했습니다. 다시 시도해주세요.', 'ai');
+        }
+    } catch (error) {
+        console.error('시장 분석 오류:', error);
+        addMessage('시장 분석 중 오류가 발생했습니다. 다시 시도해주세요.', 'ai');
+    } finally {
+        // 버튼 상태 복원
+        if (marketAnalysisBtn) {
+            setTimeout(() => {
+                marketAnalysisBtn.disabled = false;
+                marketAnalysisBtn.innerHTML = '<span style="font-size: 20px;">📊</span> 실시간 시장 분석 (AI 뉴스 분석 기반)';
+            }, 3000);
+        }
+    }
+}
+</script>
+{% endblock %} 

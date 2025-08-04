@@ -1,0 +1,1807 @@
+{% extends 'layout.html' %}
+{% block title %}뉴스/이슈{% endblock %}
+{% block extra_css %}
+{% endblock %}
+{% block content %}
+<style>
+/* 전체 페이지 배경 */
+body {
+    background-color: #FAFAFA;
+}
+
+/* 네비게이션 바 스타일 오버라이드 */
+.pixie-navbar {
+    background: #FFFFFF !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+    border-bottom: none !important;
+}
+
+/* 뉴스 페이지 스타일 */
+.news-container {
+    padding: 0;
+    max-width: 1440px;
+    margin: 0 auto;
+    background: transparent;
+}
+
+.news-filter-dropdown {
+    padding: 14px 0 18px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #8F8F8F;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.news-filter-dropdown:hover {
+    color: #1454FE;
+}
+
+/* 탭 메뉴 스타일 */
+.news-tabs {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 96px 0;
+    margin-bottom: 32px;
+    border-bottom: 1px solid #E5E5E5;
+}
+
+.news-tabs-left {
+    display: flex;
+    gap: 48px;
+}
+
+.news-tab {
+    position: relative;
+    padding: 14px 0 18px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #8F8F8F;
+    cursor: pointer;
+    background: none;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.news-tab.active {
+    color: #1454FE;
+    font-weight: 600;
+}
+
+.news-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #1454FE;
+}
+
+/* 뉴스 카드 캐러셀 */
+.news-carousel-wrapper {
+    position: relative;
+    padding: 0 96px 40px;
+}
+
+.carousel-viewport {
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+}
+
+.news-grid {
+    display: flex;
+    gap: 16px;
+    transition: transform 0.5s ease-in-out;
+    padding: 0;
+    width: fit-content;
+    position: relative;
+}
+
+/* 캐러셀 네비게이션 버튼 */
+.carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 77px;
+    height: 77px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.carousel-nav:hover {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.carousel-nav.prev {
+    left: 20px;
+}
+
+.carousel-nav.next {
+    right: 20px;
+}
+
+.carousel-nav svg {
+    width: 24px;
+    height: 24px;
+    fill: white;
+}
+
+/* 캐러셀 인디케이터 */
+.carousel-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 30px;
+}
+
+.carousel-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #E5E5E5;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.carousel-indicator.active {
+    background: #1454FE;
+    width: 24px;
+    border-radius: 4px;
+}
+
+.news-card {
+    flex: 0 0 auto;
+    width: auto; /* JavaScript에서 동적으로 설정 */
+    height: 400px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: block;
+    border: 1px solid rgba(229, 229, 229, 0.5);
+    backdrop-filter: blur(10px);
+}
+
+.news-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.news-card-content {
+    position: relative;
+    height: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.news-category {
+    width: fit-content;
+    padding: 2px 12px;
+    background: #CADBFF;
+    border-radius: 4px;
+    color: #1454FE;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.news-title {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 24px;
+    color: black;
+    margin-bottom: 12px;
+    flex-grow: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: keep-all;
+}
+
+.news-summary {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    color: #474747;
+    margin-bottom: 20px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: keep-all;
+}
+
+.news-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 12px;
+    gap: 8px;
+}
+
+.news-meta-left {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.news-meta-right {
+    display: flex;
+    align-items: center;
+}
+
+.news-source {
+    font-size: 12px;
+    color: #8F8F8F;
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+.news-time {
+    font-size: 12px;
+    color: #8F8F8F;
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+.news-time::before {
+    content: '·';
+    margin: 0 4px;
+}
+
+.news-like-btn {
+    padding: 8px 16px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #E5E5E5;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.news-like-btn:hover {
+    border-color: #1454FE;
+}
+
+.news-like-btn.liked {
+    background: #1454FE;
+    border-color: #1454FE;
+    color: white;
+}
+
+.news-like-count {
+    font-size: 12px;
+    font-weight: 500;
+    color: #474747;
+}
+
+.news-like-btn.liked .news-like-count {
+    color: white;
+}
+
+.news-like-icon {
+    width: 16px;
+    height: 16px;
+    fill: #474747;
+}
+
+.news-like-btn.liked .news-like-icon {
+    fill: white;
+}
+
+/* 픽시 인사이트 섹션 */
+.pixie-insight-section {
+    padding: 40px 0;
+    background: #FAFAFA;
+}
+
+.pixie-insight-section .pixie-insight-wrapper {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 96px;
+}
+
+.pixie-insight-container {
+    display: flex;
+    gap: 24px;
+    align-items: stretch;
+}
+
+.pixie-insight-box {
+    flex: 2;
+    background: #F5F5F5;
+    border-radius: 24px;
+    padding: 40px;
+    position: relative;
+    height: 400px;
+}
+
+.pixie-insight-badge {
+    padding: 8px 20px;
+    border-radius: 100px;
+    border: 1px solid #1454FE;
+    color: #1454FE;
+    font-size: 16px;
+    font-weight: 600;
+    display: inline-block;
+    margin-bottom: 20px;
+    background: white;
+}
+
+.pixie-insight-title {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: black;
+    margin-bottom: 16px;
+    word-break: keep-all;
+}
+
+.pixie-insight-text {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    color: #474747;
+    margin-bottom: 24px;
+    word-break: keep-all;
+}
+
+.pixie-insight-points {
+    display: flex;
+    gap: 32px;
+}
+
+.pixie-insight-point {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pixie-insight-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    background: #CADBFF;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pixie-insight-icon svg {
+    width: 16px;
+    height: 16px;
+    fill: #1454FE;
+}
+
+.pixie-insight-point-text {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    color: #474747;
+    word-break: keep-all;
+    max-width: 400px;
+}
+
+/* 픽시 한마디 */
+.pixie-quote-box {
+    flex: 1;
+    background: #CADBFF;
+    border-radius: 24px;
+    padding: 40px 30px;
+    position: relative;
+    text-align: center;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.pixie-quote-badge {
+    padding: 10px 24px;
+    border-radius: 100px;
+    border: 1px solid #1454FE;
+    color: #1454FE;
+    font-size: 18px;
+    font-weight: 600;
+    display: inline-block;
+    margin-bottom: 20px;
+    background: white;
+}
+
+.pixie-quote-text {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 36px;
+    color: black;
+    position: relative;
+    z-index: 1;
+    word-break: keep-all;
+}
+
+.pixie-quote-mark {
+    position: absolute;
+    font-size: 80px;
+    color: white;
+    font-family: 'YDIYGO160-KSCpc-EUC-H', serif;
+    line-height: 1;
+    opacity: 0.5;
+}
+
+.pixie-quote-mark.left {
+    top: 20px;
+    left: 20px;
+}
+
+.pixie-quote-mark.right {
+    bottom: 20px;
+    right: 20px;
+    transform: rotate(180deg);
+}
+
+/* 트렌드 맵 섹션 */
+.trend-map-section {
+    padding: 60px 0;
+    overflow: hidden;
+    position: relative;
+    background: #FAFAFA;
+}
+
+.trend-map-section .trend-map-wrapper {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 96px;
+}
+
+.trend-map-header {
+    margin-bottom: 40px;
+}
+
+.trend-map-title {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 46.8px;
+    color: black;
+    margin-bottom: 12px;
+}
+
+.trend-map-subtitle {
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 28px;
+    color: #8F8F8F;
+    margin-bottom: 8px;
+}
+
+.trend-map-note {
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 28px;
+    color: #3B7AFF;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.trend-map-note svg {
+    width: 20px;
+    height: 20px;
+}
+
+.trend-tags-container {
+    position: relative;
+    height: 360px;
+    overflow: hidden;
+}
+
+.trend-tags {
+    position: absolute;
+    display: flex;
+    gap: 24px;
+    white-space: nowrap;
+    padding: 10px 0;
+}
+
+.trend-tag {
+    padding: 20px 50px;
+    border-radius: 82.4px;
+    font-size: 32px;
+    font-family: 'S-Core Dream', sans-serif;
+    font-weight: 200;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.trend-tag.outlined {
+    outline: 2px solid black;
+    outline-offset: -2px;
+    color: black;
+    background: transparent;
+}
+
+.trend-tag.filled {
+    background: #3B7AFF;
+    color: white;
+    outline: 2px solid white;
+    outline-offset: -2px;
+}
+
+.trend-tag:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.trend-tag.filled:hover {
+    background: #2968E8;
+}
+
+.trend-change {
+    font-size: 20px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+}
+
+.trend-change svg {
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+}
+
+/* 트렌드 태그 애니메이션 */
+@keyframes scrollLeft {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+@keyframes scrollRight {
+    0% {
+        transform: translateX(-50%);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.trend-tags.scroll-left {
+    animation: scrollLeft 40s linear infinite;
+}
+
+.trend-tags.scroll-right {
+    animation: scrollRight 40s linear infinite;
+}
+
+.trend-tags:hover {
+    animation-play-state: paused;
+}
+
+/* 반응형 및 소스 텍스트 최적화 */
+@media (max-width: 400px) {
+    .news-source-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+    }
+    
+    .news-time::before {
+        display: none;
+    }
+}
+
+/* 미디어 쿼리 - 카드 너비는 JavaScript에서 동적으로 계산 */
+@media (max-width: 1200px) {
+    .news-carousel-wrapper {
+        padding: 0 40px 60px;
+    }
+    .news-tabs,
+    .pixie-insight-section .pixie-insight-wrapper,
+    .trend-map-section .trend-map-wrapper {
+        padding-left: 40px;
+        padding-right: 40px;
+    }
+    .pixie-insight-container {
+        flex-direction: column;
+        gap: 24px;
+    }
+    .pixie-quote-box {
+        width: 100%;
+    }
+    .pixie-insight-points {
+        flex-direction: column;
+        gap: 24px;
+    }
+}
+
+@media (max-width: 768px) {
+    .news-card {
+        flex: 0 0 calc(100vw - 60px);
+        width: calc(100vw - 60px);
+    }
+    .news-carousel-wrapper {
+        padding: 0 20px 40px;
+    }
+    .news-tabs,
+    .pixie-insight-section .pixie-insight-wrapper,
+    .trend-map-section .trend-map-wrapper {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    .news-tabs {
+        gap: 30px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .news-tabs::-webkit-scrollbar {
+        display: none;
+    }
+    .news-tab {
+        font-size: 20px;
+        white-space: nowrap;
+    }
+    .pixie-insight-title {
+        font-size: 24px;
+        line-height: 32px;
+    }
+    .pixie-insight-text {
+        font-size: 14px;
+        line-height: 20px;
+    }
+    .pixie-quote-text {
+        font-size: 20px;
+        line-height: 28px;
+    }
+    .trend-map-title {
+        font-size: 28px;
+        line-height: 36px;
+    }
+    .trend-tag {
+        font-size: 20px;
+        padding: 12px 24px;
+    }
+    .trend-tags-container {
+        height: 240px;
+    }
+    .carousel-nav {
+        width: 50px;
+        height: 50px;
+    }
+    .carousel-nav.prev {
+        left: 10px;
+    }
+    .carousel-nav.next {
+        right: 10px;
+    }
+}
+
+/* 감정 뱃지 스타일 추가 */
+.news-sentiment-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(10px);
+    z-index: 10;
+}
+
+.news-sentiment-badge.positive {
+    background: rgba(34, 197, 94, 0.1);
+    color: #16a34a;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.news-sentiment-badge.negative {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* 감정 점수 바 스타일 */
+.sentiment-score-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.sentiment-score-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.sentiment-score-fill.positive {
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+.sentiment-score-fill.negative {
+    background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+
+/* 감정 점수 막대 */
+.news-sentiment-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #e5e5e5;
+    overflow: hidden;
+}
+
+.news-sentiment-bar-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.news-sentiment-bar-fill.positive {
+    background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+}
+
+.news-sentiment-bar-fill.negative {
+    background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+}
+
+/* 중요도 표시 */
+.news-importance {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.news-importance.high {
+    color: #dc2626;
+    border: 2px solid #dc2626;
+}
+
+.news-importance.medium {
+    color: #f59e0b;
+    border: 2px solid #f59e0b;
+}
+
+.news-importance.low {
+    color: #6b7280;
+    border: 2px solid #6b7280;
+}
+
+/* 뉴스 카드 로딩 애니메이션 */
+@keyframes newsCardFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.news-card {
+    animation: newsCardFadeIn 0.5s ease-out;
+    animation-fill-mode: both;
+}
+
+.news-card:nth-child(1) { animation-delay: 0.1s; }
+.news-card:nth-child(2) { animation-delay: 0.2s; }
+.news-card:nth-child(3) { animation-delay: 0.3s; }
+.news-card:nth-child(4) { animation-delay: 0.4s; }
+.news-card:nth-child(5) { animation-delay: 0.5s; }
+.news-card:nth-child(6) { animation-delay: 0.6s; }
+.news-card:nth-child(7) { animation-delay: 0.7s; }
+.news-card:nth-child(8) { animation-delay: 0.8s; }
+
+/* 필터 드롭다운 스타일 */
+.filter-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    background: white;
+    border: 1px solid #E5E5E5;
+    border-radius: 8px;
+    margin-top: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    min-width: 150px;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.filter-option {
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 18px;
+    color: #474747;
+}
+
+.filter-option:hover {
+    background: #F5F5F5;
+}
+
+.filter-option.active {
+    color: #1454FE;
+    font-weight: 600;
+    background: #F0F5FF;
+}
+
+/* 로딩 스피너 */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    width: 100%;
+}
+
+.loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #F5F5F5;
+    border-top-color: #1454FE;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+</style>
+<div class="news-container">
+    <!-- 뉴스 탭 메뉴 -->
+    <div class="news-tabs">
+        <div class="news-tabs-left">
+            <button class="news-tab active" data-tab="today">오늘의 픽!</button>
+            <button class="news-tab" data-tab="portfolio">보유 종목</button>
+            <button class="news-tab" data-tab="popular">조회수 Top</button>
+            <button class="news-tab" data-tab="recommend">추천 많은</button>
+        </div>
+        <button class="news-filter-dropdown">
+            <span>국내 뉴스</span>
+            <svg width="14" height="8" viewBox="0 0 14 8" fill="none">
+                <path d="M1 1L7 7L13 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+        </button>
+    </div>
+    
+    <!-- 뉴스 캐러셀 -->
+    <div class="news-carousel-wrapper">
+        <div class="carousel-nav prev" onclick="moveCarousel('prev')">
+            <svg viewBox="0 0 24 24">
+                <path d="M15 19l-7-7 7-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+        </div>
+        <div class="carousel-nav next" onclick="moveCarousel('next')">
+            <svg viewBox="0 0 24 24">
+                <path d="M9 5l7 7-7 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+        </div>
+        <div class="carousel-viewport">
+            <div class="news-grid" id="news-grid">
+                <!-- 뉴스 카드들이 여기에 동적으로 렌더링됩니다 -->
+            </div>
+        </div>
+        <div class="carousel-indicators" id="carousel-indicators">
+            <!-- 인디케이터가 동적으로 생성됩니다 -->
+        </div>
+    </div>
+    
+    <!-- 픽시 인사이트 섹션 -->
+    <div class="pixie-insight-section">
+        <div class="pixie-insight-wrapper">
+            <div class="pixie-insight-container">
+            <div class="pixie-insight-box">
+                <div class="pixie-insight-badge">픽시의 인사이트</div>
+                <h2 class="pixie-insight-title">기술과 건강의 교차점, 투자 기회를 말하다</h2>
+                <p class="pixie-insight-text">
+                    오늘은 의약·헬스케어 산업의 활력이 두드러졌어요. AI·바이오 기술 기반 플랫폼의 성장부터 신약 파이프라인 발표까지, 
+                    기술과 건강이 만나는 지점에서 새로운 투자 기회가 보이고 있죠. 또한 정부의 약가 정책 변화, 증권사의 투자 교육 확대 등은 
+                    시장 참여자들에게 구조적인 영향을 미치는 제도 변화로 해석돼요.
+                </p>
+                <div class="pixie-insight-points">
+                    <div class="pixie-insight-point">
+                        <div class="pixie-insight-icon">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <span class="pixie-insight-point-text">헬스케어는 중장기 성장성과 정책 리스크를 함께 고려해야 해요.</span>
+                    </div>
+                    <div class="pixie-insight-point">
+                        <div class="pixie-insight-icon">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <span class="pixie-insight-point-text">정보 비대칭이 큰 영역이기 때문에, 제도 변화와 임상 소식에 민감하게 반응하는 특성이 있습니다.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="pixie-quote-box">
+                <span class="pixie-quote-mark left">"</span>
+                <span class="pixie-quote-mark right">"</span>
+                <div class="pixie-quote-badge">픽시의 한마디</div>
+                <div class="pixie-quote-text">
+                    기회는 빠르게,<br/>
+                    정책은 조심스럽게!
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+    
+    <!-- 트렌드 맵 섹션 -->
+    <div class="trend-map-section">
+        <div class="trend-map-wrapper">
+            <div class="trend-map-header">
+            <h2 class="trend-map-title">트렌드 맵</h2>
+            <p class="trend-map-subtitle">AI 비서 픽시가 산업별 트렌드 맵을 시각화하고, 소셜 투자 피드를 분석해 주목받는 키워드를 알려드려요.</p>
+            <p class="trend-map-note">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M7 17L17 7M17 7H7M17 7V17" stroke="#1454FE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                언급량 급증 (전일 대비 +%)
+            </p>
+        </div>
+        
+            <div class="trend-tags-container" id="trend-tags-container">
+                <!-- 트렌드 태그들이 여기에 동적으로 렌더링됩니다 -->
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+// jQuery 로드 확인
+if (typeof jQuery === 'undefined') {
+    console.error('jQuery is not loaded!');
+    // jQuery 재로드 시도
+    var script = document.createElement('script');
+    script.src = 'https://code.jquery.com/jquery-3.7.1.min.js';
+    script.onload = function() {
+        console.log('jQuery loaded successfully');
+        initializePage();
+    };
+    document.head.appendChild(script);
+} else {
+    console.log('jQuery is ready, version:', jQuery.fn.jquery);
+    // jQuery가 이미 로드된 경우 바로 초기화
+    jQuery(document).ready(function() {
+        initializePage();
+    });
+}
+
+// 전역 변수 선언
+let currentTab = 'today';
+let currentFilter = 'domestic'; // 'domestic' or 'global'
+let currentPage = 0;
+let totalPages = 0;
+let allNewsData = [];
+
+// 페이지 초기화 함수
+function initializePage() {
+    console.log('[DEBUG] initializePage 호출됨');
+    
+    // jQuery 별칭 설정
+    window.$ = jQuery;
+    
+    // 초기 뉴스 로드
+    loadNews('today');
+    
+    // 픽시 인사이트 로드
+    loadPixieInsights();
+    
+    // 트렌드 키워드 로드
+    loadTrendKeywords();
+    
+    // 이벤트 핸들러 등록
+    bindEventHandlers();
+}
+
+// 뉴스 카드 렌더링 함수
+function renderNewsCards(newsList) {
+    console.log('[DEBUG] renderNewsCards 호출, 뉴스 개수:', newsList ? newsList.length : 0);
+    
+    const $container = jQuery('#news-grid');
+    $container.empty();
+    
+    if (!newsList || newsList.length === 0) {
+        $container.html('<div style="text-align: center; padding: 80px; width: 100%; color: #8F8F8F; font-size: 20px;">관련 뉴스가 없습니다.</div>');
+        jQuery('.carousel-nav').hide();
+        jQuery('#carousel-indicators').empty();
+        return;
+    }
+    
+    // 전체 뉴스 데이터 저장
+    allNewsData = newsList;
+    
+    // 페이지 수 계산 (한 페이지에 3개)
+    totalPages = Math.ceil(newsList.length / 3);
+    currentPage = 0;
+    
+    // 모든 뉴스 카드 생성 (display를 통해 표시/숨김 제어)
+    newsList.forEach(function(news, index) {
+        console.log('[DEBUG] 뉴스 카드 생성:', news);
+        console.log('[DEBUG] sentiment:', news.sentiment, 'sentiment_score:', news.sentiment_score);
+        
+        // 뉴스 링크 처리 - link가 없거나 '#'인 경우 검색 링크 생성
+        let newsLink = news.link;
+        if (!newsLink || newsLink === '#') {
+            // 네이버 뉴스 검색 링크 생성
+            const searchQuery = encodeURIComponent(news.title.replace(/\n/g, ' '));
+            newsLink = `https://search.naver.com/search.naver?where=news&query=${searchQuery}`;
+        }
+        
+        // 감정 점수를 퍼센트로 변환 (0-100)
+        const sentimentPercent = Math.abs((news.sentiment_score || 0) * 100);
+        
+        // 중요도에 따른 클래스
+        const importanceScore = news.importance_score || 50;
+        const importanceClass = importanceScore >= 80 ? 'high' : 
+                               importanceScore >= 50 ? 'medium' : 'low';
+        
+        const newsCard = `
+            <a href="${newsLink}" target="_blank" class="news-card" data-news-id="${news.id}" 
+               data-news-title="${news.title}" 
+               data-news-content="${news.summary || news.content}"
+               data-news-sentiment="${news.sentiment || ''}"
+               data-news-score="${news.sentiment_score || 0}"
+               onclick="event.preventDefault(); showNewsDetail(this);"
+               style="animation-delay: ${(index % 4) * 0.1}s">
+                <div class="news-card-content">
+                    <!-- 중요도 표시 (70점 이상만) -->
+                    ${importanceScore >= 70 ? `
+                        <div class="news-importance ${importanceClass}">
+                            ${importanceScore}
+                        </div>
+                    ` : ''}
+                    
+                    <!-- 감정 뱃지 -->
+                    ${news.sentiment ? `
+                        <div class="news-sentiment-badge ${news.sentiment === '긍정' ? 'positive' : 'negative'}">
+                            ${news.sentiment}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="news-category">${news.category || '종합'}</div>
+                    <h3 class="news-title">${news.title}</h3>
+                    <p class="news-summary">${news.summary || news.content}</p>
+                    <div class="news-meta">
+                        <div class="news-meta-left">
+                            <span class="news-source">${news.source || '픽시 뉴스'}</span>
+                            <span class="news-time">${news.time || '방금 전'}</span>
+                        </div>
+                        <div class="news-meta-right">
+                            <button class="news-like-btn ${news.isLiked ? 'liked' : ''}" data-news-id="${news.id}" onclick="event.preventDefault(); event.stopPropagation(); toggleLike(this);">
+                                <svg class="news-like-icon" viewBox="0 0 24 24">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                                <span class="news-like-count">${news.likes || 0}</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 감정 점수 막대 -->
+                    ${news.sentiment_score ? `
+                        <div class="news-sentiment-bar">
+                            <div class="news-sentiment-bar-fill ${news.sentiment === '긍정' ? 'positive' : 'negative'}" 
+                                 style="width: ${sentimentPercent}%"></div>
+                        </div>
+                    ` : ''}
+                </div>
+            </a>
+        `;
+        $container.append(newsCard);
+    });
+    
+    // 인디케이터 생성
+    updateCarouselIndicators();
+    
+    // 첫 페이지 표시
+    updateCarouselPosition();
+    
+    // 네비게이션 버튼 표시/숨김
+    if (totalPages <= 1) {
+        jQuery('.carousel-nav').hide();
+    } else {
+        jQuery('.carousel-nav').show();
+    }
+}
+
+// 캐러셀 위치 업데이트
+function updateCarouselPosition() {
+    const $container = jQuery('#news-grid');
+    const $wrapper = jQuery('.news-carousel-wrapper');
+    const wrapperWidth = $wrapper.width() - 192; // 좌우 패딩 96px * 2 제외
+    const windowWidth = jQuery(window).width();
+    let cardsPerPage = 3; // 고정 3개
+    
+    // 반응형 페이지당 카드 수 계산
+    if (windowWidth <= 768) {
+        cardsPerPage = 1;
+    } else {
+        cardsPerPage = 3; // 데스크탑에서는 항상 3개
+    }
+    
+    // 카드 너비 계산 (갭 포함)
+    const gap = 16;
+    const cardWidth = (wrapperWidth - (gap * (cardsPerPage - 1))) / cardsPerPage;
+    
+    // 모든 카드 너비 업데이트
+    jQuery('.news-card').css({
+        'flex': `0 0 ${cardWidth}px`,
+        'width': `${cardWidth}px`
+    });
+    
+    // 페이지 수 재계산
+    totalPages = Math.ceil(allNewsData.length / cardsPerPage);
+    if (currentPage >= totalPages) {
+        currentPage = totalPages - 1;
+    }
+    
+    const totalWidth = (cardWidth + gap) * cardsPerPage;
+    const offset = currentPage * totalWidth * -1;
+    
+    $container.css('transform', `translateX(${offset}px)`);
+    
+    // 네비게이션 버튼 활성화/비활성화
+    jQuery('.carousel-nav.prev').css('opacity', currentPage === 0 ? '0.3' : '1');
+    jQuery('.carousel-nav.next').css('opacity', currentPage === totalPages - 1 ? '0.3' : '1');
+    
+    // 인디케이터 업데이트
+    updateCarouselIndicators();
+}
+
+// 캐러셀 이동
+function moveCarousel(direction) {
+    if (direction === 'prev' && currentPage > 0) {
+        currentPage--;
+    } else if (direction === 'next' && currentPage < totalPages - 1) {
+        currentPage++;
+    }
+    updateCarouselPosition();
+}
+
+// 인디케이터 업데이트
+function updateCarouselIndicators() {
+    const $indicators = jQuery('#carousel-indicators');
+    $indicators.empty();
+    
+    for (let i = 0; i < totalPages; i++) {
+        const $indicator = jQuery('<div class="carousel-indicator"></div>');
+        if (i === currentPage) {
+            $indicator.addClass('active');
+        }
+        $indicator.on('click', function() {
+            currentPage = i;
+            updateCarouselPosition();
+        });
+        $indicators.append($indicator);
+    }
+}
+
+// 뉴스 로드 함수
+function loadNews(tab) {
+    console.log('[DEBUG] loadNews 호출:', tab);
+    
+    // 로딩 표시
+    jQuery('#news-grid').html('<div class="loading-container"><div class="loading-spinner"></div></div>');
+    
+    // API 엔드포인트 매핑
+    const apiMap = {
+        'today': '/api/news-today',
+        'portfolio': '/api/news-portfolio',
+        'popular': '/api/news-popular',
+        'recommend': '/api/news-recommend'
+    };
+    
+    // 필터 파라미터 추가
+    const params = currentFilter === 'global' ? '?filter=global' : '?filter=domestic';
+    const apiUrl = apiMap[tab] + params;
+    
+    console.log('[DEBUG] API 호출:', apiUrl);
+    
+    // API 호출
+    jQuery.get(apiUrl, function(res) {
+        console.log('[DEBUG] API 응답:', res);
+        console.log('[DEBUG] res.success:', res.success);
+        console.log('[DEBUG] res.news_list:', res.news_list);
+        console.log('[DEBUG] res.news_list length:', res.news_list ? res.news_list.length : 'undefined');
+        
+        // 첫 번째 뉴스의 sentiment 데이터 확인
+        if (res.news_list && res.news_list.length > 0) {
+            console.log('[DEBUG] 첫 번째 뉴스의 sentiment 데이터:', {
+                sentiment: res.news_list[0].sentiment,
+                sentiment_score: res.news_list[0].sentiment_score
+            });
+        }
+        
+        if (res.success && res.news_list && res.news_list.length > 0) {
+            renderNewsCards(res.news_list);
+        } else {
+            console.log('[DEBUG] 뉴스 없음 또는 실패 - 빈 배열로 렌더링');
+            renderNewsCards([]);
+        }
+    }).fail(function(xhr, status, error) {
+        console.error('[DEBUG] API 오류:', status, error);
+        console.error('[DEBUG] Response:', xhr.responseText);
+        // 오류 시 빈 배열로 표시
+        renderNewsCards([]);
+    });
+}
+
+// 탭 변경 함수
+function changeTab(tab) {
+    currentTab = tab;
+    
+    // 모든 탭에서 active 클래스 제거
+    jQuery('.news-tab').removeClass('active');
+    // 선택된 탭에 active 클래스 추가
+    jQuery(`.news-tab[data-tab="${tab}"]`).addClass('active');
+    
+    // 해당 탭의 뉴스 로드
+    loadNews(tab);
+}
+
+// 좋아요 토글 함수
+function toggleLike(btn) {
+    const $btn = jQuery(btn);
+    const newsId = $btn.data('news-id');
+    const $count = $btn.find('.news-like-count');
+    const currentCount = parseInt($count.text());
+    
+    if ($btn.hasClass('liked')) {
+        $btn.removeClass('liked');
+        $count.text(currentCount - 1);
+    } else {
+        $btn.addClass('liked');
+        $count.text(currentCount + 1);
+    }
+    
+    // 서버에 좋아요 상태 저장 (선택사항)
+    // $.post('/api/news-like', { news_id: newsId, liked: $btn.hasClass('liked') });
+}
+
+// 이벤트 핸들러 바인딩 함수
+function bindEventHandlers() {
+    // $ 대신 jQuery 사용
+    const $ = jQuery;
+    
+    // 탭 클릭 이벤트
+    $('.news-tab').on('click', function() {
+        const tab = $(this).data('tab');
+        changeTab(tab);
+    });
+    
+    // 필터 드롭다운 클릭
+    $('.news-filter-dropdown').on('click', function(e) {
+        e.stopPropagation();
+        
+        // 드롭다운 메뉴가 이미 열려있으면 닫기
+        if ($('.filter-dropdown-menu').length > 0) {
+            $('.filter-dropdown-menu').remove();
+            return;
+        }
+        
+        // 드롭다운 메뉴 생성
+        const $dropdown = $('<div class="filter-dropdown-menu"></div>');
+        $dropdown.html(`
+            <div class="filter-option ${currentFilter === 'domestic' ? 'active' : ''}" data-filter="domestic">국내 뉴스</div>
+            <div class="filter-option ${currentFilter === 'global' ? 'active' : ''}" data-filter="global">해외 뉴스</div>
+        `);
+        
+        // 드롭다운 추가
+        $(this).css('position', 'relative').append($dropdown);
+        
+        // 옵션 클릭 이벤트
+        $('.filter-option').on('click', function() {
+            currentFilter = $(this).data('filter');
+            
+            // 버튼 텍스트 업데이트
+            $('.news-filter-dropdown span').text($(this).text());
+            
+            // 드롭다운 닫기
+            $('.filter-dropdown-menu').remove();
+            
+            // 뉴스 다시 로드 (필터 적용)
+            loadNews(currentTab);
+        });
+    });
+    
+    // 외부 클릭 시 드롭다운 닫기
+    $(document).on('click', function() {
+        $('.filter-dropdown-menu').remove();
+    });
+    
+    // 30분마다 데이터 자동 새로고침
+    setInterval(function() {
+        loadNews(currentTab);
+        loadPixieInsights();
+        loadTrendKeywords();
+    }, 30 * 60 * 1000); // 30분
+    
+    // 윈도우 리사이즈 이벤트
+    let resizeTimeout;
+    $(window).on('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+            if (allNewsData.length > 0) {
+                updateCarouselPosition();
+            }
+        }, 250);
+    });
+}
+
+// 픽시 인사이트 로드
+function loadPixieInsights() {
+    jQuery.get('/api/pixie-insights', function(res) {
+        if (res.success && res.insights) {
+            // 인사이트 제목과 내용 업데이트
+            $('.pixie-insight-title').text(res.insights.title || '오늘의 시장 동향과 투자 기회');
+            $('.pixie-insight-text').text(res.insights.content || '오늘 시장에서 주목할 만한 투자 기회와 트렌드를 분석해드립니다.');
+            
+            // 포인트 업데이트
+            const $points = $('.pixie-insight-point-text');
+            if (res.insights.points && res.insights.points.length > 0) {
+                $points.each(function(index) {
+                    if (index < res.insights.points.length) {
+                        $(this).text(res.insights.points[index]);
+                    }
+                });
+            }
+            
+            // 픽시의 한마디 업데이트
+            if (res.insights.quote) {
+                $('.pixie-quote-text').html(res.insights.quote.replace(/\n/g, '<br/>'));
+            }
+        }
+    }).fail(function() {
+        console.log('픽시 인사이트 로드 실패');
+    });
+}
+
+// 트렌드 키워드 로드
+function loadTrendKeywords() {
+    jQuery.get('/api/trend-keywords', function(res) {
+        if (res.success && res.keywords && res.keywords.length > 0) {
+            // 기존 트렌드 태그 컨테이너 비우기
+            jQuery('#trend-tags-container').empty();
+            
+            // 키워드를 3개의 행으로 나누기
+            const rows = [[], [], []];
+            res.keywords.forEach((keyword, index) => {
+                rows[index % 3].push(keyword);
+            });
+            
+            // 각 행에 태그 추가
+            rows.forEach((row, rowIndex) => {
+                if (row.length === 0) return;
+                
+                const $row = $('<div class="trend-tags"></div>');
+                const direction = rowIndex % 2 === 0 ? 'scroll-left' : 'scroll-right';
+                
+                // 무한 스크롤을 위해 키워드 2배로 복제
+                const duplicatedKeywords = [...row, ...row];
+                
+                duplicatedKeywords.forEach(keyword => {
+                    const keywordText = keyword.keyword || keyword.text || keyword;
+                    const isFilled = keyword.type === 'filled' || keyword.isFilled || (rowIndex % 2 === 0 && Math.random() > 0.5);
+                    const change = keyword.change || keyword.score || Math.floor(Math.random() * 50 + 10);
+                    
+                    // 급증 키워드인 경우 백분율 추가
+                    let tagContent = keywordText;
+                    if (isFilled && change) {
+                        tagContent += `<span class="trend-change">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            ${change}%
+                        </span>`;
+                    }
+                    
+                    const $tag = $(`<div class="trend-tag ${isFilled ? 'filled' : 'outlined'}">${tagContent}</div>`);
+                    
+                    $row.append($tag);
+                });
+                
+                // 애니메이션 클래스 추가
+                $row.addClass(direction);
+                $row.css({
+                    'top': `${rowIndex * 120}px`,
+                    'animation-duration': `${40 + rowIndex * 10}s`
+                });
+                
+                jQuery('#trend-tags-container').append($row);
+            });
+            
+            // 태그 호버 효과 (이벤트 위임 사용)
+            $('#trend-tags-container').off('mouseenter mouseleave', '.trend-tag');
+            $('#trend-tags-container').on('mouseenter', '.trend-tag', function() {
+                $(this).css({
+                    'transform': 'translateY(-2px) scale(1.05)',
+                    'box-shadow': '0 8px 20px rgba(0,0,0,0.1)'
+                });
+            }).on('mouseleave', '.trend-tag', function() {
+                $(this).css({
+                    'transform': 'translateY(0) scale(1)',
+                    'box-shadow': 'none'
+                });
+            });
+        } else {
+            // 기본 트렌드 키워드 표시
+            displayDefaultTrendKeywords();
+        }
+    }).fail(function() {
+        console.log('트렌드 키워드 로드 실패');
+        displayDefaultTrendKeywords();
+    });
+}
+
+// 기본 트렌드 키워드 표시 함수
+function displayDefaultTrendKeywords() {
+    const defaultKeywords = [
+        [{keyword: "#AI 반도체", type: "outlined"}, {keyword: "#삼성전자", type: "filled", change: 25}, {keyword: "#2차전지", type: "outlined"}],
+        [{keyword: "#IRA 법안", type: "filled", change: 18}, {keyword: "#탄소배출권", type: "outlined"}, {keyword: "#토목 SOC", type: "outlined"}],
+        [{keyword: "#디스플레이", type: "filled", change: 32}, {keyword: "#바이오", type: "outlined"}, {keyword: "#유전자 치료제", type: "outlined"}, {keyword: "#테슬라 옵티머스", type: "filled", change: 45}]
+    ];
+    
+    jQuery('#trend-tags-container').empty();
+    
+    defaultKeywords.forEach((row, rowIndex) => {
+        const $row = jQuery('<div class="trend-tags"></div>');
+        const direction = rowIndex % 2 === 0 ? 'scroll-left' : 'scroll-right';
+        
+        // 무한 스크롤을 위해 키워드 2배로 복제
+        const duplicatedKeywords = [...row, ...row];
+        
+        duplicatedKeywords.forEach(keyword => {
+            // 급증 키워드인 경우 백분율 추가
+            let tagContent = keyword.keyword;
+            if (keyword.type === 'filled' && keyword.change) {
+                tagContent += `<span class="trend-change">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    ${keyword.change}%
+                </span>`;
+            }
+            
+            const $tag = jQuery(`<div class="trend-tag ${keyword.type}">${tagContent}</div>`);
+            
+            $row.append($tag);
+        });
+        
+        $row.addClass(direction);
+        $row.css({
+            'top': `${rowIndex * 120}px`,
+            'animation-duration': `${40 + rowIndex * 10}s`
+        });
+        
+        jQuery('#trend-tags-container').append($row);
+    });
+}
+
+// 키보드 단축키 기능
+document.addEventListener('DOMContentLoaded', function() {
+    // 키보드 단축키 리스너
+    document.addEventListener('keydown', function(e) {
+        // 입력 필드에 포커스가 있으면 무시
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        
+        switch(e.key) {
+            case '1':
+                switchTab('today');
+                break;
+            case '2':
+                switchTab('portfolio');
+                break;
+            case '3':
+                switchTab('popular');
+                break;
+            case '4':
+                switchTab('recommend');
+                break;
+            case 'ArrowLeft':
+                if (currentPage > 0) {
+                    currentPage--;
+                    showPage(currentPage);
+                }
+                break;
+            case 'ArrowRight':
+                if (currentPage < totalPages - 1) {
+                    currentPage++;
+                    showPage(currentPage);
+                }
+                break;
+            case 'r':
+            case 'R':
+                // R키로 새로고침
+                loadNews(currentTab);
+                showToast('뉴스를 새로고침합니다');
+                break;
+            case 'f':
+            case 'F':
+                // F키로 필터 토글
+                toggleSentimentFilter();
+                break;
+        }
+    });
+    
+    // 초기 로드
+    switchTab('today');
+});
+
+// 토스트 메시지 표시 함수
+function showToast(message) {
+    const toast = jQuery(`<div class="toast-message">${message}</div>`);
+    jQuery('body').append(toast);
+    toast.fadeIn(300);
+    setTimeout(() => {
+        toast.fadeOut(300, () => toast.remove());
+    }, 2000);
+}
+
+// 뉴스 상세 보기 모달
+function showNewsDetail(element) {
+    const newsData = {
+        title: element.dataset.newsTitle,
+        content: element.dataset.newsContent,
+        sentiment: element.dataset.newsSentiment,
+        score: parseFloat(element.dataset.newsScore),
+        link: element.href
+    };
+    
+    const modalHTML = `
+        <div class="news-modal-overlay" onclick="closeNewsModal()">
+            <div class="news-modal" onclick="event.stopPropagation()">
+                <button class="modal-close" onclick="closeNewsModal()">×</button>
+                <h2 class="modal-title">${newsData.title}</h2>
+                ${newsData.sentiment ? `
+                    <div class="modal-sentiment">
+                        <span class="news-sentiment-badge ${newsData.sentiment === '긍정' ? 'positive' : 'negative'}">
+                            ${newsData.sentiment}
+                        </span>
+                        <span class="sentiment-score-text">감정 점수: ${(newsData.score * 100).toFixed(0)}%</span>
+                    </div>
+                ` : ''}
+                <div class="modal-content">${newsData.content}</div>
+                <div class="modal-actions">
+                    <a href="${newsData.link}" target="_blank" class="modal-btn primary">원문 보기</a>
+                    <button class="modal-btn" onclick="closeNewsModal()">닫기</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    jQuery('body').append(modalHTML);
+    jQuery('.news-modal-overlay').fadeIn(200);
+}
+
+function closeNewsModal() {
+    jQuery('.news-modal-overlay').fadeOut(200, function() {
+        jQuery(this).remove();
+    });
+}
+
+// 감정 필터 토글 (아래에 구현)
+let sentimentFilter = 'all';
+
+function toggleSentimentFilter() {
+    const filters = ['all', 'positive', 'negative'];
+    const currentIndex = filters.indexOf(sentimentFilter);
+    sentimentFilter = filters[(currentIndex + 1) % filters.length];
+    
+    // 필터 적용
+    applySentimentFilter();
+    
+    // 메시지 표시
+    const messages = {
+        'all': '모든 뉴스',
+        'positive': '긍정 뉴스만',
+        'negative': '부정 뉴스만'
+    };
+    showToast(messages[sentimentFilter]);
+}
+
+function applySentimentFilter() {
+    const newsCards = document.querySelectorAll('.news-card');
+    newsCards.forEach(card => {
+        if (sentimentFilter === 'all') {
+            card.style.display = '';
+        } else {
+            const badge = card.querySelector('.news-sentiment-badge');
+            if (badge) {
+                const isPositive = badge.classList.contains('positive');
+                if (sentimentFilter === 'positive' && isPositive) {
+                    card.style.display = '';
+                } else if (sentimentFilter === 'negative' && !isPositive) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            } else {
+                card.style.display = 'none';
+            }
+        }
+    });
+}
+</script>
+
+<style>
+/* 토스트 메시지 스타일 */
+.toast-message {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 14px;
+    z-index: 9999;
+    display: none;
+}
+
+/* 뉴스 모달 스타일 */
+.news-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 10000;
+}
+
+.news-modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 30px;
+    cursor: pointer;
+    color: #666;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.modal-close:hover {
+    background: #f5f5f5;
+    color: #333;
+}
+
+.modal-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    line-height: 1.4;
+    padding-right: 40px;
+}
+
+.modal-sentiment {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.sentiment-score-text {
+    font-size: 14px;
+    color: #666;
+}
+
+.modal-content {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.modal-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: white;
+    color: #333;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.modal-btn:hover {
+    background: #f5f5f5;
+}
+
+.modal-btn.primary {
+    background: #1454FE;
+    color: white;
+    border-color: #1454FE;
+    text-decoration: none;
+}
+
+.modal-btn.primary:hover {
+    background: #0d3dd7;
+}
+</style>
+{% endblock %}

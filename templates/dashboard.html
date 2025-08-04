@@ -1,0 +1,1322 @@
+{% extends 'layout.html' %}
+
+{% block title %}Pixie - 대시보드{% endblock %}
+
+{% block body_class %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Figma 디자인 기반 Pixie 홈페이지 스타일 */
+    :root {
+        --pixie-primary: #1454FE;
+        --pixie-primary-dark: #0B3DCF;
+        --pixie-secondary: #5E97F4;
+        --pixie-dark: #2F2E41;
+        --pixie-dark-light: #3F3D56;
+        --pixie-gray: #474747;
+        --pixie-light-gray: #F5F5F5;
+        --pixie-white: #FFFFFF;
+        --pixie-black: #000000;
+        --pixie-green: #22C55E;
+        --pixie-text-muted: #8F8F8F;
+        --pixie-gradient: linear-gradient(90deg, #5E97F4 0%, #3B7AFF 100%);
+        --pixie-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15);
+        --pixie-shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 기본 네비게이션 표시 - layout.html의 네비게이션 사용 */
+    .navbar.pixie-navbar {
+        display: block !important;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
+        line-height: 1.6;
+        color: var(--pixie-black);
+        background: var(--pixie-white);
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* 커스텀 네비게이션 - layout.html 스타일 사용 */
+
+    .pixie-nav-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .pixie-logo {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+    }
+
+    .pixie-logo img {
+        height: 40px;
+        width: auto;
+    }
+
+    .pixie-nav-menu {
+        display: flex;
+        gap: 60px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        align-items: center;
+    }
+
+    .pixie-nav-item {
+        display: flex;
+        align-items: center;
+        color: var(--pixie-black);
+        font-size: 24px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 600;
+        line-height: 33.6px;
+        text-decoration: none;
+        transition: color 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .pixie-nav-item:hover {
+        color: var(--pixie-primary);
+        background-color: rgba(20, 84, 254, 0.1);
+        text-decoration: none;
+    }
+
+    .pixie-nav-item i {
+        font-size: 14px;
+        width: 16px;
+        text-align: center;
+    }
+
+    .pixie-nav-icons {
+        display: flex;
+        gap: 43px;
+        align-items: center;
+    }
+
+    .pixie-nav-icon {
+        width: 29px;
+        height: 29px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        background: transparent;
+        color: var(--pixie-black);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 16px;
+    }
+
+    .pixie-nav-icon:hover {
+        background: var(--pixie-primary);
+        color: var(--pixie-white);
+    }
+
+    /* 히어로 섹션 */
+    .pixie-hero {
+        min-height: 500px;
+        background: var(--pixie-light-gray);
+        display: flex;
+        align-items: center;
+        padding: 60px 5%;
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .pixie-hero-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        gap: 60px;
+    }
+
+    .pixie-hero-text {
+        flex: 1;
+        max-width: 600px;
+        min-width: 400px;
+    }
+
+    .pixie-hero-title {
+        color: var(--pixie-black);
+        font-size: 48px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 700;
+        margin-bottom: 20px;
+        line-height: 1.4;
+    }
+    
+    .hero-title-line1,
+    .hero-title-line2 {
+        display: block;
+        white-space: nowrap;
+    }
+    
+    .hero-title-line2 {
+        margin-top: 8px;
+    }
+
+    .pixie-hero-description {
+        color: var(--pixie-gray);
+        font-size: 18px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 400;
+        line-height: 27px;
+        margin-bottom: 40px;
+        max-width: 600px;
+    }
+
+    .pixie-hero-buttons {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .pixie-btn-primary {
+        background: var(--pixie-primary);
+        color: var(--pixie-white);
+        border: none;
+        padding: 16px 33px;
+        border-radius: 8px;
+        font-size: 20px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 500;
+        line-height: 28px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 16px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .pixie-btn-primary:hover {
+        background: var(--pixie-primary-dark);
+        transform: translateY(-2px);
+        color: var(--pixie-white);
+        text-decoration: none;
+    }
+
+    .pixie-btn-secondary {
+        background: transparent;
+        color: var(--pixie-primary);
+        border: 1px solid var(--pixie-primary);
+        padding: 16px 33px;
+        border-radius: 8px;
+        font-size: 20px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 500;
+        line-height: 28px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 16px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .pixie-btn-secondary:hover {
+        background: var(--pixie-primary);
+        color: var(--pixie-white);
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+
+    /* 히어로 차트 시각화 */
+    .pixie-hero-visual {
+        position: relative;
+        width: 450px;
+        height: 400px;
+        flex-shrink: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .pixie-chart-container {
+        position: relative;
+        width: 450px;
+        height: 400px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .pixie-chart-bars {
+        position: absolute;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: end;
+        gap: 12px;
+        z-index: 2;
+    }
+
+    .pixie-chart-bar {
+        width: 37px;
+        background: var(--pixie-gradient);
+        border-radius: 4px 4px 0 0;
+        position: relative;
+    }
+
+    .pixie-chart-bar::before {
+        content: '';
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 12px;
+        height: 12px;
+        background: var(--pixie-dark-light);
+        border-radius: 50%;
+    }
+
+    .pixie-chart-bar.bar1 { height: 108px; }
+    .pixie-chart-bar.bar2 { height: 148px; }
+    .pixie-chart-bar.bar3 { height: 108px; }
+    .pixie-chart-bar.bar4 { height: 164px; }
+    .pixie-chart-bar.bar5 { height: 193px; }
+
+    .pixie-hero-person {
+        position: absolute;
+        bottom: 20px;
+        right: 15%;
+        width: 180px;
+        height: 220px;
+        background-image: url('{{ url_for("static", filename="images/dash1.png") }}');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        z-index: 3;
+    }
+
+    .pixie-chart-line {
+        position: absolute;
+        bottom: 165px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 300px;
+        height: 1px;
+        background: #CBCBCB;
+        z-index: 1;
+    }
+
+    /* 이슈 종목 추천 섹션 */
+    .pixie-issues-section {
+        padding: 60px 5%;
+        background: var(--pixie-white);
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .pixie-section-title {
+        color: var(--pixie-black);
+        font-size: 28px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 700;
+        line-height: 36px;
+        margin-bottom: 40px;
+    }
+
+    .pixie-issues-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-top: 30px;
+    }
+
+    .pixie-issue-card {
+        background: var(--pixie-light-gray);
+        border-radius: 20px;
+        overflow: hidden;
+        position: relative;
+        height: 500px;
+    }
+
+    .pixie-issue-image {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin: 12px 0;
+    }
+
+    .pixie-issue-content {
+        padding: 20px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .pixie-issue-title {
+        color: var(--pixie-black);
+        font-size: 18px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 600;
+        line-height: 24px;
+        margin-bottom: 0;
+    }
+
+    .pixie-issue-details {
+        background: #272727;
+        color: var(--pixie-white);
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: auto;
+    }
+
+    .pixie-issue-btn {
+        background: var(--pixie-black);
+        color: var(--pixie-white);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 200px;
+        font-size: 14px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 400;
+        line-height: 20px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        backdrop-filter: blur(100px);
+        margin-bottom: 16px;
+        align-self: flex-start;
+    }
+
+    .pixie-issue-btn:hover {
+        background: var(--pixie-primary);
+    }
+
+    .pixie-issue-label {
+        color: var(--pixie-white);
+        font-size: 16px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 500;
+        line-height: 24px;
+        margin-bottom: 8px;
+    }
+
+    .pixie-issue-stocks {
+        color: var(--pixie-white);
+        font-size: 14px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 400;
+        line-height: 20px;
+        margin-bottom: 12px;
+    }
+
+    .pixie-issue-highlight {
+        color: var(--pixie-secondary);
+        font-size: 13px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 700;
+        line-height: 18px;
+    }
+
+    /* 트렌드 맵 섹션 */
+    .pixie-trends-section {
+        padding: 60px 5%;
+        background: var(--pixie-white);
+        max-width: 1200px;
+        margin: 0 auto;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .pixie-trends-description {
+        color: var(--pixie-text-muted);
+        font-size: 16px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 500;
+        line-height: 24px;
+        margin-bottom: 16px;
+    }
+
+    .pixie-trends-note {
+        color: #3B7AFF;
+        font-size: 16px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 500;
+        line-height: 24px;
+        margin-bottom: 40px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .pixie-trends-note svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .trend-tags-container {
+        position: relative;
+        height: 400px;
+        overflow: hidden;
+    }
+
+    .trend-tags {
+        position: absolute;
+        display: flex;
+        gap: 40px;
+        white-space: nowrap;
+        padding: 20px 0;
+    }
+
+    .pixie-trend-tag {
+        padding: 20px 60px;
+        border-radius: 100px;
+        font-size: 32px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        flex-shrink: 0;
+        text-decoration: none;
+    }
+
+    .pixie-trend-tag.outlined {
+        border: 2px solid #E5E5E5;
+        color: #474747;
+        background: white;
+    }
+
+    .pixie-trend-tag.filled {
+        background: #1454FE;
+        color: white;
+        border: 2px solid #1454FE;
+    }
+
+    .pixie-trend-tag:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        text-decoration: none;
+    }
+
+    .pixie-trend-tag.filled:hover {
+        background: #0A3FDB;
+        border-color: #0A3FDB;
+    }
+
+    .trend-change {
+        font-size: 18px;
+        font-weight: 600;
+        margin-left: 8px;
+        opacity: 0.8;
+    }
+
+    /* 트렌드 태그 애니메이션 */
+    @keyframes scrollLeft {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(-50%);
+        }
+    }
+
+    @keyframes scrollRight {
+        0% {
+            transform: translateX(-50%);
+        }
+        100% {
+            transform: translateX(0);
+        }
+    }
+
+    .trend-tags.scroll-left {
+        animation: scrollLeft 40s linear infinite;
+    }
+
+    .trend-tags.scroll-right {
+        animation: scrollRight 40s linear infinite;
+    }
+
+    .trend-tags:hover {
+        animation-play-state: paused;
+    }
+
+    /* 서비스 소개 섹션 */
+    .pixie-services-section {
+        padding: 60px 5%;
+        background: var(--pixie-white);
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .pixie-services-title {
+        color: var(--pixie-black);
+        font-size: 36px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 700;
+        line-height: 1.4;
+        margin-bottom: 80px;
+        text-align: center;
+        word-break: keep-all;
+    }
+
+    .pixie-services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 40px;
+    }
+
+    .pixie-service-card {
+        background: var(--pixie-light-gray);
+        border-radius: 28px;
+        padding: 60px 40px;
+        text-align: center;
+        transition: all 0.3s ease;
+        min-height: 480px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .pixie-service-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--pixie-shadow-lg);
+    }
+
+    .pixie-service-icon {
+        width: 74px;
+        height: 74px;
+        background: var(--pixie-primary);
+        margin: 0 auto 20px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        color: var(--pixie-white);
+    }
+
+    .pixie-service-label {
+        color: var(--pixie-gray);
+        font-size: 20px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 700;
+        line-height: 30px;
+        margin-bottom: 30px;
+    }
+
+    .pixie-service-title {
+        color: var(--pixie-black);
+        font-size: 36px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 700;
+        line-height: 1.3;
+        margin-bottom: 20px;
+        word-break: keep-all;
+    }
+
+    .pixie-service-description {
+        color: var(--pixie-gray);
+        font-size: 18px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 400;
+        line-height: 27px;
+        margin-bottom: 40px;
+        word-break: keep-all;
+        min-height: 80px;
+    }
+
+    .pixie-service-btn {
+        background: transparent;
+        color: var(--pixie-primary);
+        border: 1px solid var(--pixie-primary);
+        padding: 16px 33px;
+        border-radius: 8px;
+        font-size: 20px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 500;
+        line-height: 28px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 16px;
+        transition: all 0.2s ease;
+        justify-content: center;
+    }
+
+    .pixie-service-btn:hover {
+        background: var(--pixie-primary);
+        color: var(--pixie-white);
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+
+    /* 푸터 */
+    .pixie-footer {
+        background: var(--pixie-white);
+        padding: 60px 5%;
+        border-top: 1px solid #E2E8F0;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .pixie-footer-content {
+        max-width: 1728px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 60px;
+        margin-bottom: 40px;
+    }
+
+    .pixie-footer-brand {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .pixie-footer-logo {
+        color: var(--pixie-primary);
+        font-size: 40px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+    }
+
+    .pixie-footer-tagline {
+        color: var(--pixie-black);
+        font-size: 14px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 300;
+        line-height: 19.6px;
+    }
+
+    .pixie-footer-section h4 {
+        color: var(--pixie-black);
+        font-size: 14px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 400;
+        line-height: 21px;
+        margin-bottom: 16px;
+    }
+
+    .pixie-footer-section p {
+        color: var(--pixie-gray);
+        font-size: 14px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 400;
+        line-height: 21px;
+        opacity: 0.5;
+    }
+
+    .pixie-footer-bottom {
+        border-top: 1px solid #E2E8F0;
+        padding-top: 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--pixie-gray);
+        font-size: 14px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 400;
+        line-height: 21px;
+    }
+
+    /* 반응형 디자인 */
+    @media (max-width: 1400px) {
+        .pixie-navbar,
+        .pixie-hero,
+        .pixie-issues-section,
+        .pixie-trends-section,
+        .pixie-services-section,
+        .pixie-footer {
+            padding-left: 40px;
+            padding-right: 40px;
+        }
+        
+        .pixie-hero-visual {
+            width: 400px;
+            height: 350px;
+        }
+        
+        .pixie-chart-container {
+            width: 400px;
+            height: 350px;
+        }
+        
+        .pixie-hero-title {
+            font-size: 42px;
+        }
+        
+        .hero-title-line1,
+        .hero-title-line2 {
+            white-space: normal;
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .pixie-nav-menu {
+            gap: 15px;
+        }
+        
+        .pixie-nav-item {
+            font-size: 14px;
+            padding: 6px 8px;
+        }
+        
+        .pixie-nav-item i {
+            font-size: 12px;
+            width: 14px;
+        }
+        
+        .pixie-hero-content {
+            flex-direction: column;
+            gap: 60px;
+            text-align: center;
+        }
+        
+        .pixie-hero-visual {
+            width: 350px;
+            height: 300px;
+            margin: 0 auto;
+        }
+        
+        .pixie-chart-container {
+            width: 350px;
+            height: 300px;
+        }
+        
+        .pixie-hero-text {
+            min-width: auto;
+            max-width: none;
+        }
+        
+        .pixie-hero-title {
+            font-size: 36px;
+            line-height: 1.3;
+        }
+        
+        .pixie-trend-tag {
+            font-size: 20px;
+            padding: 12px 32px;
+        }
+        
+        .trend-change {
+            font-size: 14px;
+        }
+        
+        .pixie-issues-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .pixie-navbar {
+            padding: 20px;
+        }
+        
+        .pixie-logo img {
+            height: 28px;
+        }
+        
+        .pixie-nav-menu {
+            display: none;
+        }
+        
+        .pixie-hero {
+            padding: 40px 20px;
+            min-height: auto;
+        }
+        
+        .pixie-hero-title {
+            font-size: 28px;
+            text-align: center;
+            line-height: 1.4;
+        }
+        
+        .hero-title-line1,
+        .hero-title-line2 {
+            font-size: 28px;
+        }
+        
+        .pixie-hero-description {
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .pixie-hero-buttons {
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: center;
+        }
+        
+        .pixie-hero-visual {
+            width: 300px;
+            height: 250px;
+            margin: 0 auto;
+        }
+        
+        .pixie-chart-container {
+            width: 300px;
+            height: 250px;
+        }
+        
+        .pixie-hero-person {
+            right: 10%;
+            width: 120px;
+            height: 150px;
+        }
+        
+        .pixie-chart-line {
+            width: 220px;
+        }
+        
+        .pixie-hero-content {
+            gap: 40px;
+        }
+        
+        .pixie-hero {
+            padding: 40px 5%;
+        }
+        
+        .pixie-section-title,
+        .pixie-services-title {
+            font-size: 28px;
+        }
+        
+        .pixie-trend-tag {
+            font-size: 14px;
+            padding: 10px 20px;
+        }
+        
+        .trend-change {
+            font-size: 12px;
+        }
+        
+        .trend-tags-container {
+            height: 300px;
+        }
+        
+        .trend-tags {
+            gap: 20px;
+        }
+        
+        .pixie-service-card {
+            min-height: auto;
+            padding: 40px 30px;
+        }
+        
+        .pixie-service-title {
+            font-size: 24px;
+            line-height: 32px;
+        }
+        
+        .pixie-service-description {
+            font-size: 16px;
+            line-height: 24px;
+            min-height: auto;
+        }
+        
+        .pixie-issues-section,
+        .pixie-trends-section,
+        .pixie-services-section,
+        .pixie-footer {
+            padding: 60px 20px;
+        }
+        
+        .pixie-issues-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .pixie-services-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 히어로 섹션 -->
+<section class="pixie-hero">
+    <div class="pixie-hero-content">
+        <div class="pixie-hero-text">
+            <h1 class="pixie-hero-title">
+                <span class="hero-title-line1">당신의 똑똑한 투자 파트너, 픽시</span>
+                <span class="hero-title-line2">함께 만드는 나만의 투자 전략</span>
+            </h1>
+            <p class="pixie-hero-description">AI 기반 분석으로 당신의 투자 성향과 시장 흐름을 정밀하게 파악하고, 맞춤 전략을 추천해드려요. 픽시와 함께 더 스마트한 투자 여정을 시작해보세요.</p>
+            <div class="pixie-hero-buttons">
+                <a href="{{ url_for('survey') }}" class="pixie-btn-primary">투자 성향 분석 시작</a>
+                <a href="/my-investment" class="pixie-btn-secondary">
+                    MY 투자 보러가기
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="pixie-hero-visual">
+            <div class="pixie-chart-container">
+                <div class="pixie-chart-bars">
+                    <div class="pixie-chart-bar bar1"></div>
+                    <div class="pixie-chart-bar bar2"></div>
+                    <div class="pixie-chart-bar bar3"></div>
+                    <div class="pixie-chart-bar bar4"></div>
+                    <div class="pixie-chart-bar bar5"></div>
+                </div>
+                <div class="pixie-hero-person"></div>
+                <div class="pixie-chart-line"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 오늘의 이슈 종목 추천 -->
+<section class="pixie-issues-section">
+    <h2 class="pixie-section-title">오늘의 이슈 종목 추천</h2>
+    
+    <div class="pixie-issues-grid">
+        <!-- 반도체 카드 -->
+        <div class="pixie-issue-card">
+            <div class="pixie-issue-content">
+                <h3 class="pixie-issue-title">반도체 공급난 재점화?<br>관련 종목 주목!</h3>
+                <img src="{{ url_for('static', filename='images/issue1.png') }}" alt="반도체 공급난 이슈" class="pixie-issue-image">
+                <div class="pixie-issue-details">
+                    <button class="pixie-issue-btn" onclick="window.open('{{ url_for('news_page') }}', '_blank')">관련 기사 원문</button>
+                    <p class="pixie-issue-label">핵심 종목</p>
+                    <p class="pixie-issue-stocks">삼성전자 – 투자 중심 기업<br>DB하이텍 – AI 반도체 관련 부품 수혜주<br>원익IPS – 반도체 장비 공급사</p>
+                    <p class="pixie-issue-highlight">장비 수요 급증으로 수혜 가능성 ↑</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 메타버스 카드 -->
+        <div class="pixie-issue-card">
+            <div class="pixie-issue-content">
+                <h3 class="pixie-issue-title">다시 메타버스 열풍,<br>관련 기술주 다시 부각</h3>
+                <img src="{{ url_for('static', filename='images/issue2.png') }}" alt="메타버스 열풍 이슈" class="pixie-issue-image">
+                <div class="pixie-issue-details">
+                    <button class="pixie-issue-btn" onclick="window.open('{{ url_for('news_page') }}', '_blank')">관련 기사 원문</button>
+                    <p class="pixie-issue-label">핵심 종목</p>
+                    <p class="pixie-issue-stocks">맥스트 - AR(증강현실) 소프트웨어<br>선익시스템 - OLED 증착 장비 제조</p>
+                    <p class="pixie-issue-highlight">XR 디바이스 수요 확대에 따른 콘텐츠·부품 기업 동반 수혜 가능성 ↑</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 비메모리 카드 -->
+        <div class="pixie-issue-card">
+            <div class="pixie-issue-content">
+                <h3 class="pixie-issue-title">비메모리 육성 본격화…<br>파운드리 시장 키운다!</h3>
+                <img src="{{ url_for('static', filename='images/issue3.png') }}" alt="비메모리 육성 이슈" class="pixie-issue-image">
+                <div class="pixie-issue-details">
+                    <button class="pixie-issue-btn" onclick="window.open('{{ url_for('news_page') }}', '_blank')">관련 기사 원문</button>
+                    <p class="pixie-issue-label">핵심 종목</p>
+                    <p class="pixie-issue-stocks">DB하이텍 – 파운드리 생산능력 확대<br>SK하이닉스 – CIS 등 비메모리 투자 강화</p>
+                    <p class="pixie-issue-highlight">비메모리 생태계 확장으로 장비주까지 수혜 전망↑</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 자율주행 카드 -->
+        <div class="pixie-issue-card">
+            <div class="pixie-issue-content">
+                <h3 class="pixie-issue-title">자율주행 규제 완화되어<br>로보택시 상용화 박차</h3>
+                <img src="{{ url_for('static', filename='images/issue4.png') }}" alt="자율주행 규제완화 이슈" class="pixie-issue-image">
+                <div class="pixie-issue-details">
+                    <button class="pixie-issue-btn" onclick="window.open('{{ url_for('news_page') }}', '_blank')">관련 기사 원문</button>
+                    <p class="pixie-issue-label">핵심 종목</p>
+                    <p class="pixie-issue-stocks">라닉스 – 자율주행용 통신칩 기술 보유<br>세코닉스 – 카메라 모듈 수요 증가 수혜</p>
+                    <p class="pixie-issue-highlight">완전자율주행 상용화 수혜, 부품주 중심으로 관심↑</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 트렌드 맵 -->
+<section class="pixie-trends-section">
+    <h2 class="pixie-section-title">트렌드 맵</h2>
+    <p class="pixie-trends-description">AI 비서 픽시가 산업별 트렌드 맵을 시각화하고, 소셜 투자 피드를 분석해 주목받는 키워드를 알려드려요.</p>
+    <p class="pixie-trends-note">
+        <svg viewBox="0 0 24 24" fill="none">
+            <path d="M7 17L17 7M17 7H7M17 7V17" stroke="#1454FE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        언급량 급증 (전일 대비 +%)
+    </p>
+    
+    <div class="trend-tags-container" id="trend-tags-container">
+        <!-- 트렌드 태그들이 여기에 동적으로 렌더링됩니다 -->
+    </div>
+</section>
+
+<!-- 서비스 소개 -->
+<section class="pixie-services-section">
+    <h2 class="pixie-services-title">똑똑한 투자 전략,<br>지금 바로 픽시와 시작해보세요</h2>
+    
+    <div class="pixie-services-grid">
+        <div class="pixie-service-card">
+            <div>
+                <div class="pixie-service-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <p class="pixie-service-label">투자 설문</p>
+                <h3 class="pixie-service-title">투자 성향 분석</h3>
+                <p class="pixie-service-description">10가지 문항에 답변하여 투자 스타일과 위험 성향을 파악하고, 이를 통해 맞춤형 투자 전략을 제시합니다.</p>
+            </div>
+            <a href="{{ url_for('survey') }}" class="pixie-service-btn">
+                시작하기
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="pixie-service-card">
+            <div>
+                <div class="pixie-service-icon">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <p class="pixie-service-label">MY 투자</p>
+                <h3 class="pixie-service-title">포트폴리오 추천</h3>
+                <p class="pixie-service-description">AI 기반 알고리즘으로 분석된 최적의 포트폴리오를 추천합니다. 시장 변동성 및 수익률을 고려한 맞춤형 제안을 받아보세요.</p>
+            </div>
+            <a href="/my-investment" class="pixie-service-btn">
+                결과 보기
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="pixie-service-card">
+            <div>
+                <div class="pixie-service-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <p class="pixie-service-label">투자 챗봇</p>
+                <h3 class="pixie-service-title">AI 투자 챗봇,<br>픽시</h3>
+                <p class="pixie-service-description">24시간 전문가 수준의 상담을 제공하는 AI 투자 어시스턴트. 실시간 질문에 답변하고 맞춤형 투자 조언을 제공합니다.</p>
+            </div>
+            <a href="{{ url_for('chatbot') }}" class="pixie-service-btn">
+                상담하기
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- 푸터 -->
+<footer class="pixie-footer">
+    <div class="pixie-footer-content">
+        <div class="pixie-footer-brand">
+            <div class="pixie-footer-logo">Pixie</div>
+            <p class="pixie-footer-tagline">당신의 똑똑한 투자 파트너, 픽시</p>
+        </div>
+        
+        <div class="pixie-footer-section">
+            <h4>Resources</h4>
+            <p>Desktop Web</p>
+        </div>
+        
+        <div class="pixie-footer-section">
+            <h4>Team 팀명</h4>
+        </div>
+        
+        <div class="pixie-footer-section">
+            <h4>Tools · Stack</h4>
+            <p>Figma</p>
+        </div>
+        
+        <div class="pixie-footer-section">
+            <h4>Legal</h4>
+            <p>Abuse</p>
+            <p>Terms</p>
+        </div>
+    </div>
+    
+    <div class="pixie-footer-bottom">
+        <p>© 2025 PIXIE All rights reserved.</p>
+        <p>데모 서비스입니다. 수집된 정보는 저장되지 않으며, 시연 목적 외에는 사용되지 않습니다</p>
+    </div>
+</footer>
+
+<script>
+// jQuery 로드 확인
+if (typeof jQuery === 'undefined') {
+    console.error('jQuery is not loaded!');
+    // jQuery 재로드 시도
+    var script = document.createElement('script');
+    script.src = 'https://code.jquery.com/jquery-3.7.1.min.js';
+    script.onload = function() {
+        console.log('jQuery loaded successfully');
+        initializeDashboard();
+    };
+    document.head.appendChild(script);
+} else {
+    console.log('jQuery is ready, version:', jQuery.fn.jquery);
+    // jQuery가 이미 로드된 경우 바로 초기화
+    jQuery(document).ready(function() {
+        initializeDashboard();
+    });
+}
+
+// 페이지 초기화 함수
+function initializeDashboard() {
+    console.log('[DEBUG] initializeDashboard 호출됨');
+    
+    // jQuery 별칭 설정
+    window.$ = jQuery;
+    
+    // 트렌드 키워드 로드
+    loadTrendKeywords();
+    
+    // 30분마다 데이터 자동 새로고침
+    setInterval(function() {
+        loadTrendKeywords();
+    }, 30 * 60 * 1000); // 30분
+}
+
+// 트렌드 키워드 로드
+function loadTrendKeywords() {
+    jQuery.get('/api/trend-keywords', function(res) {
+        if (res.success && res.keywords && res.keywords.length > 0) {
+            // 기존 트렌드 태그 컨테이너 비우기
+            jQuery('#trend-tags-container').empty();
+            
+            // 키워드를 3개의 행으로 나누기
+            const rows = [[], [], []];
+            res.keywords.forEach((keyword, index) => {
+                rows[index % 3].push(keyword);
+            });
+            
+            // 각 행에 태그 추가
+            rows.forEach((row, rowIndex) => {
+                if (row.length === 0) return;
+                
+                const $row = jQuery('<div class="trend-tags"></div>');
+                const direction = rowIndex % 2 === 0 ? 'scroll-left' : 'scroll-right';
+                
+                // 무한 스크롤을 위해 키워드 2배로 복제
+                const duplicatedKeywords = [...row, ...row];
+                
+                duplicatedKeywords.forEach(keyword => {
+                    const keywordText = keyword.keyword || keyword.text || keyword;
+                    const isFilled = keyword.type === 'filled' || keyword.isFilled || (rowIndex % 2 === 0 && Math.random() > 0.5);
+                    const change = keyword.change || keyword.score || Math.floor(Math.random() * 50 + 10);
+                    
+                    const $tag = jQuery(`<div class="pixie-trend-tag ${isFilled ? 'filled' : 'outlined'}">${keywordText}</div>`);
+                    
+                    // 변화율 표시 (filled 태그에만)
+                    if (isFilled && change > 0) {
+                        $tag.append(`<span class="trend-change">+${change}%</span>`);
+                    }
+                    
+                    $row.append($tag);
+                });
+                
+                // 애니메이션 클래스 추가
+                $row.addClass(direction);
+                $row.css({
+                    'top': `${rowIndex * 120}px`,
+                    'animation-duration': `${40 + rowIndex * 10}s`
+                });
+                
+                jQuery('#trend-tags-container').append($row);
+            });
+            
+            // 태그 호버 효과 (이벤트 위임 사용)
+            jQuery('#trend-tags-container').off('mouseenter mouseleave', '.pixie-trend-tag');
+            jQuery('#trend-tags-container').on('mouseenter', '.pixie-trend-tag', function() {
+                jQuery(this).css({
+                    'transform': 'translateY(-2px) scale(1.05)',
+                    'box-shadow': '0 8px 20px rgba(0,0,0,0.1)'
+                });
+            }).on('mouseleave', '.pixie-trend-tag', function() {
+                jQuery(this).css({
+                    'transform': 'translateY(0) scale(1)',
+                    'box-shadow': 'none'
+                });
+            });
+        } else {
+            // 기본 트렌드 키워드 표시
+            displayDefaultTrendKeywords();
+        }
+    }).fail(function() {
+        console.log('트렌드 키워드 로드 실패');
+        displayDefaultTrendKeywords();
+    });
+}
+
+// 기본 트렌드 키워드 표시 함수
+function displayDefaultTrendKeywords() {
+    const defaultKeywords = [
+        [{keyword: "#삼성전자", type: "filled", change: 23}, {keyword: "#SK하이닉스", type: "outlined"}, {keyword: "#반도체", type: "outlined"}],
+        [{keyword: "#AI", type: "outlined"}, {keyword: "#테슬라", type: "filled", change: 15}, {keyword: "#배터리", type: "outlined"}],
+        [{keyword: "#바이오", type: "filled", change: 31}, {keyword: "#헬스케어", type: "outlined"}, {keyword: "#금리인하", type: "outlined"}]
+    ];
+    
+    jQuery('#trend-tags-container').empty();
+    
+    defaultKeywords.forEach((row, rowIndex) => {
+        const $row = jQuery('<div class="trend-tags"></div>');
+        const direction = rowIndex % 2 === 0 ? 'scroll-left' : 'scroll-right';
+        
+        // 무한 스크롤을 위해 키워드 2배로 복제
+        const duplicatedKeywords = [...row, ...row];
+        
+        duplicatedKeywords.forEach(keyword => {
+            const $tag = jQuery(`<div class="pixie-trend-tag ${keyword.type}">${keyword.keyword}</div>`);
+            
+            if (keyword.type === 'filled' && keyword.change) {
+                $tag.append(`<span class="trend-change">+${keyword.change}%</span>`);
+            }
+            
+            $row.append($tag);
+        });
+        
+        $row.addClass(direction);
+        $row.css({
+            'top': `${rowIndex * 120}px`,
+            'animation-duration': `${40 + rowIndex * 10}s`
+        });
+        
+        jQuery('#trend-tags-container').append($row);
+    });
+}
+
+// 네비게이션 스크롤 효과
+window.addEventListener('scroll', function() {
+    const navbar = document.querySelector('.pixie-navbar');
+    if (window.scrollY > 100) {
+        navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+        navbar.style.backdropFilter = 'blur(10px)';
+    } else {
+        navbar.style.background = 'var(--pixie-white)';
+        navbar.style.backdropFilter = 'none';
+    }
+});
+
+// 부드러운 스크롤
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+</script>
+{% endblock %}
