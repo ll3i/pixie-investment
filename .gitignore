@@ -78,3 +78,12 @@ failed_fs_tickers.txt
 investment_data.db
 newsbot.db
 pixie_investment.db
+
+# Large files
+*.pkl
+*.csv
+backup_*.csv
+data/*.csv
+data/*.pkl
+venv/
+analysis_results.json
