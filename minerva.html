@@ -1,0 +1,466 @@
+{% extends "layout.html" %}
+
+{% block title %}MINERVA - 투자 AI 챗봇{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: #001128;
+        color: #fff;
+        background-image: url('/static/images/minerva-bg.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        position: relative;
+        font-family: 'Noto Sans KR', sans-serif;
+    }
+    
+    body::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, rgba(0, 17, 40, 0.7), rgba(0, 17, 40, 0.85));
+        z-index: -1;
+    }
+    
+    .minerva-container {
+        padding: 2rem 0;
+        position: relative;
+        height: calc(100vh - 76px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .chat-wrapper {
+        background-color: rgba(2, 23, 55, 0.8);
+        border-radius: 1.5rem;
+        overflow: hidden;
+        height: 85vh;
+        max-height: 800px;
+        width: 100%;
+        max-width: 1000px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(79, 113, 184, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .chat-header {
+        background: linear-gradient(90deg, rgba(2, 23, 55, 0.95), rgba(7, 43, 94, 0.95));
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid rgba(79, 113, 184, 0.2);
+    }
+    
+    .chat-header .robot-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #0066ff, #2740c4);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1.2rem;
+        box-shadow: 0 5px 15px rgba(0, 102, 255, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .chat-header .robot-icon::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, transparent 20%, rgba(255, 255, 255, 0.2));
+        top: 0;
+        left: 0;
+    }
+    
+    .chat-header .robot-icon i {
+        font-size: 28px;
+        color: white;
+    }
+    
+    .chat-header h2 {
+        margin: 0;
+        font-size: 1.6rem;
+        font-weight: 700;
+        background: linear-gradient(90deg, #ffffff, #a3c2ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.02em;
+    }
+    
+    .chat-header p {
+        margin: 0.3rem 0 0;
+        font-size: 0.95rem;
+        opacity: 0.85;
+        font-weight: 300;
+    }
+    
+    .chat-subtitle {
+        color: #a3c2ff;
+    }
+    
+    .close-button {
+        margin-left: auto;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        opacity: 0.8;
+        transition: all 0.2s;
+    }
+    
+    .close-button:hover {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .chat-messages {
+        flex-grow: 1;
+        padding: 2rem;
+        overflow-y: auto;
+        background-color: rgba(1, 17, 41, 0.5);
+        scrollbar-width: thin;
+        scrollbar-color: rgba(79, 113, 184, 0.4) transparent;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .chat-messages::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .chat-messages::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    .chat-messages::-webkit-scrollbar-thumb {
+        background-color: rgba(79, 113, 184, 0.4);
+        border-radius: 3px;
+    }
+    
+    .message {
+        max-width: 80%;
+        animation: fadeIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        position: relative;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .message-user {
+        background: linear-gradient(135deg, #2563eb, #1e3fa4);
+        color: white;
+        padding: 1.2rem 1.5rem;
+        border-radius: 1.2rem 1.2rem 0 1.2rem;
+        margin-left: auto;
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 1.05rem;
+        line-height: 1.6;
+    }
+    
+    .message-ai {
+        background: linear-gradient(135deg, #002151, #00316c);
+        color: white;
+        padding: 1.2rem 1.5rem;
+        border-radius: 1.2rem 1.2rem 1.2rem 0;
+        box-shadow: 0 8px 20px rgba(0, 33, 81, 0.25);
+        border: 1px solid rgba(79, 113, 184, 0.2);
+        font-size: 1.05rem;
+        line-height: 1.6;
+    }
+    
+    .ai-message .message-content p {
+        position: relative;
+        margin-bottom: 0.8rem;
+    }
+    
+    .ai-message .message-content p:last-child {
+        margin-bottom: 0;
+    }
+    
+    .timestamp {
+        font-size: 0.75rem;
+        opacity: 0.6;
+        margin-top: 0.5rem;
+        text-align: right;
+    }
+    
+    .chat-input {
+        padding: 1.2rem;
+        background: linear-gradient(90deg, rgba(2, 23, 55, 0.95), rgba(7, 43, 94, 0.95));
+        display: flex;
+        align-items: center;
+        border-top: 1px solid rgba(79, 113, 184, 0.2);
+        gap: 0.8rem;
+    }
+    
+    #message-input {
+        flex-grow: 1;
+        background-color: rgba(1, 33, 81, 0.5);
+        border: 1px solid rgba(79, 113, 184, 0.3);
+        border-radius: 2rem;
+        padding: 1rem 1.5rem;
+        color: white;
+        font-size: 1.05rem;
+        resize: none;
+        transition: all 0.3s ease;
+        height: 56px;
+        font-family: 'Noto Sans KR', sans-serif;
+    }
+    
+    #message-input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    #message-input:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        background-color: rgba(1, 33, 81, 0.7);
+        border-color: rgba(79, 113, 184, 0.5);
+    }
+    
+    #send-button {
+        background: linear-gradient(135deg, #2563eb, #1e3fa4);
+        border: none;
+        border-radius: 2rem;
+        padding: 1rem 1.5rem;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        height: 56px;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+    
+    #send-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(37, 99, 235, 0.4);
+        background: linear-gradient(135deg, #3371f0, #2545b9);
+    }
+    
+    #send-button i {
+        font-size: 1.1rem;
+    }
+    
+    .typing-indicator {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        background: rgba(1, 33, 81, 0.5);
+        border-radius: 1rem;
+        margin-top: 0.8rem;
+        width: fit-content;
+    }
+    
+    .typing-indicator span {
+        width: 8px;
+        height: 8px;
+        background-color: rgba(255, 255, 255, 0.7);
+        border-radius: 50%;
+        display: inline-block;
+        margin: 0 2px;
+        animation: blink 1.4s infinite both;
+    }
+    
+    .typing-indicator span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    
+    .typing-indicator span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+    
+    @keyframes blink {
+        0% { opacity: 0.4; }
+        20% { opacity: 1; }
+        100% { opacity: 0.4; }
+    }
+    
+    @media (max-width: 768px) {
+        .chat-wrapper {
+            height: calc(100vh - 100px);
+            max-height: none;
+            border-radius: 1rem;
+        }
+        
+        .message {
+            max-width: 90%;
+        }
+        
+        .chat-messages {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid minerva-container">
+    <div class="chat-wrapper">
+        <div class="chat-header">
+            <div class="robot-icon">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div>
+                <h2>MINERVA</h2>
+                <p><span class="chat-subtitle">투자 AI 어시스턴트</span> • 실시간 시장 분석 및 투자 조언</p>
+            </div>
+            <button class="close-button" id="close-chat">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="chat-messages" id="chat-messages">
+            <div class="message message-ai">
+                <div class="message-content">
+                    <p>안녕하세요! 저는 MINERVA, 당신의 투자 AI 어시스턴트입니다. 투자 관련 질문이나 시장 분석에 관해 무엇이든 물어보세요.</p>
+                    <p>예를 들어 다음과 같은 질문을 할 수 있습니다:</p>
+                    <ul>
+                        <li>현재 삼성전자 주가는 어떤가요?</li>
+                        <li>인플레이션이 주식 시장에 미치는 영향은 무엇인가요?</li>
+                        <li>제 투자 성향에 맞는 포트폴리오를 추천해주세요.</li>
+                        <li>장기 투자에 적합한 ETF는 무엇인가요?</li>
+                    </ul>
+                </div>
+                <div class="timestamp">오늘 • 지금</div>
+            </div>
+        </div>
+        
+        <div class="chat-input">
+            <textarea id="message-input" placeholder="투자에 관해 무엇이든 물어보세요..." rows="1"></textarea>
+            <button id="send-button">
+                <i class="fas fa-paper-plane"></i>
+                <span>전송</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        const chatMessages = document.getElementById('chat-messages');
+        
+        // 텍스트 영역 자동 크기 조절
+        messageInput.addEventListener('input', function() {
+            this.style.height = '56px';
+            this.style.height = (this.scrollHeight > 150 ? 150 : this.scrollHeight) + 'px';
+        });
+        
+        // 메시지 전송
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message === '') return;
+            
+            // 현재 시간 표시용
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const timeString = `${hours}:${minutes}`;
+            
+            // 사용자 메시지 추가
+            const userMessageElement = document.createElement('div');
+            userMessageElement.className = 'message message-user';
+            userMessageElement.innerHTML = `
+                <div class="message-content">
+                    <p>${message}</p>
+                </div>
+                <div class="timestamp">오늘 • ${timeString}</div>
+            `;
+            chatMessages.appendChild(userMessageElement);
+            
+            // 입력창 초기화
+            messageInput.value = '';
+            messageInput.style.height = '56px';
+            
+            // 스크롤 아래로
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // 타이핑 표시기 추가
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing-indicator';
+            typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+            chatMessages.appendChild(typingIndicator);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // 실제 백엔드에 메시지 전송
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                typingIndicator.remove();
+                const aiMessageElement = document.createElement('div');
+                aiMessageElement.className = 'message message-ai';
+                aiMessageElement.innerHTML = `
+                    <div class="message-content">
+                        <p>${data.response || '응답을 불러오지 못했습니다.'}</p>
+                    </div>
+                    <div class="timestamp">오늘 • ${timeString}</div>
+                `;
+                chatMessages.appendChild(aiMessageElement);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            })
+            .catch(error => {
+                typingIndicator.remove();
+                const aiMessageElement = document.createElement('div');
+                aiMessageElement.className = 'message message-ai';
+                aiMessageElement.innerHTML = `
+                    <div class="message-content">
+                        <p>서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.</p>
+                    </div>
+                    <div class="timestamp">오늘 • ${timeString}</div>
+                `;
+                chatMessages.appendChild(aiMessageElement);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            });
+        }
+        
+        sendButton.addEventListener('click', sendMessage);
+        
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // 초기 포커스
+        messageInput.focus();
+        
+        // 닫기 버튼
+        document.getElementById('close-chat').addEventListener('click', function() {
+            window.location.href = '/';
+        });
+    });
+</script>
+{% endblock %} 

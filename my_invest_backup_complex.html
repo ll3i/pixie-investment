@@ -1,0 +1,397 @@
+{% extends 'layout.html' %}
+{% block title %}MY 투자 - Pixie{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* MY 투자 페이지 - 다른 페이지와 통일된 디자인 */
+    .my-invest-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 80px 20px;
+        text-align: center;
+    }
+
+    /* 페이지 타이틀 */
+    .page-title {
+        font-size: 48px;
+        font-weight: 700;
+        color: #000;
+        margin-bottom: 24px;
+        letter-spacing: -0.02em;
+    }
+
+    .page-subtitle {
+        font-size: 20px;
+        font-weight: 400;
+        color: #474747;
+        margin-bottom: 60px;
+        line-height: 1.6;
+    }
+
+    /* 메인 콘텐츠 카드 */
+    .main-card {
+        background: #F8F9FA;
+        border-radius: 24px;
+        padding: 60px;
+        margin-bottom: 40px;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .card-icon {
+        width: 120px;
+        height: 120px;
+        background: #E8EFFF;
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 32px;
+        font-size: 48px;
+        color: #1454FE;
+    }
+
+    .card-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #000;
+        margin-bottom: 16px;
+    }
+
+    .card-description {
+        font-size: 18px;
+        font-weight: 400;
+        color: #474747;
+        line-height: 1.6;
+        margin-bottom: 32px;
+    }
+
+    /* 버튼 스타일 */
+    .primary-button {
+        background: #1454FE;
+        color: white;
+        border: none;
+        padding: 16px 40px;
+        border-radius: 12px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-block;
+        text-decoration: none;
+    }
+
+    .primary-button:hover {
+        background: #0B3DCF;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(20, 84, 254, 0.3);
+    }
+
+    .secondary-button {
+        background: transparent;
+        color: #1454FE;
+        border: 2px solid #1454FE;
+        padding: 16px 40px;
+        border-radius: 12px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-block;
+        text-decoration: none;
+        margin-left: 16px;
+    }
+
+    .secondary-button:hover {
+        background: #1454FE;
+        color: white;
+    }
+
+    /* 기능 섹션 */
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+        margin-top: 60px;
+        max-width: 1000px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .feature-card {
+        background: white;
+        border: 1px solid #E5E5E5;
+        border-radius: 16px;
+        padding: 32px;
+        text-align: center;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .feature-card:hover {
+        border-color: #1454FE;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .feature-icon {
+        width: 56px;
+        height: 56px;
+        background: #F0F4FF;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 24px;
+        color: #1454FE;
+    }
+
+    .feature-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #000;
+        margin-bottom: 8px;
+    }
+
+    .feature-description {
+        font-size: 16px;
+        color: #474747;
+        line-height: 1.5;
+    }
+
+    /* 상태 메시지 */
+    .status-message {
+        background: #FFF3CD;
+        border: 1px solid #FFEAA7;
+        border-radius: 12px;
+        padding: 16px 24px;
+        margin-bottom: 40px;
+        display: inline-block;
+        font-size: 16px;
+        color: #856404;
+    }
+
+    .status-message i {
+        margin-right: 8px;
+    }
+
+    /* 빈 상태 */
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+    }
+
+    .empty-icon {
+        width: 160px;
+        height: 160px;
+        background: #F5F5F5;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 32px;
+        font-size: 64px;
+        color: #C4C4C4;
+    }
+
+    .empty-title {
+        font-size: 28px;
+        font-weight: 600;
+        color: #000;
+        margin-bottom: 16px;
+    }
+
+    .empty-description {
+        font-size: 18px;
+        color: #474747;
+        margin-bottom: 32px;
+    }
+
+    /* 반응형 */
+    @media (max-width: 768px) {
+        .my-invest-container {
+            padding: 40px 20px;
+        }
+
+        .page-title {
+            font-size: 36px;
+        }
+
+        .main-card {
+            padding: 40px 24px;
+        }
+
+        .features-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="my-invest-container">
+    <!-- 페이지 헤더 -->
+    <h1 class="page-title">MY 투자</h1>
+    <p class="page-subtitle">
+        AI가 분석한 투자 성향과 맞춤 포트폴리오를 확인하고,<br>
+        나만의 투자 전략을 세워보세요.
+    </p>
+
+    <!-- 투자 프로필 확인 -->
+    <div id="profile-section">
+        <!-- 프로필이 없는 경우 -->
+        <div class="main-card" id="no-profile" style="display: none;">
+            <div class="card-icon">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <h2 class="card-title">투자 성향을 분석해보세요</h2>
+            <p class="card-description">
+                간단한 10가지 질문으로 당신의 투자 성향을 파악하고,<br>
+                AI가 추천하는 맞춤형 포트폴리오를 받아보세요.
+            </p>
+            <a href="/survey" class="primary-button">투자 성향 분석 시작</a>
+        </div>
+
+        <!-- 프로필이 있는 경우 -->
+        <div class="main-card" id="has-profile" style="display: none;">
+            <div class="card-icon">
+                <i class="fas fa-chart-pie"></i>
+            </div>
+            <h2 class="card-title">당신의 투자 프로필</h2>
+            <div id="profile-info" style="margin-bottom: 32px;">
+                <!-- 동적으로 로드됨 -->
+            </div>
+            <a href="/survey/results" class="primary-button">상세 리포트 보기</a>
+            <a href="/survey" class="secondary-button">다시 분석하기</a>
+        </div>
+    </div>
+
+    <!-- 주요 기능 -->
+    <div class="features-grid">
+        <div class="feature-card" onclick="location.href='/stock'">
+            <div class="feature-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h3 class="feature-title">주가 예측</h3>
+            <p class="feature-description">
+                AI 시계열 모델로 7일 후 주가를 예측해보세요
+            </p>
+        </div>
+
+        <div class="feature-card" onclick="location.href='/chatbot'">
+            <div class="feature-icon">
+                <i class="fas fa-robot"></i>
+            </div>
+            <h3 class="feature-title">AI 투자 상담</h3>
+            <p class="feature-description">
+                Pixie와 1:1로 투자 전략을 상담받으세요
+            </p>
+        </div>
+
+        <div class="feature-card" onclick="location.href='/news'">
+            <div class="feature-icon">
+                <i class="fas fa-newspaper"></i>
+            </div>
+            <h3 class="feature-title">투자 뉴스</h3>
+            <p class="feature-description">
+                실시간 금융 뉴스와 시장 동향을 확인하세요
+            </p>
+        </div>
+    </div>
+
+    <!-- 관심 종목 섹션 -->
+    <div style="margin-top: 80px;">
+        <h2 style="font-size: 36px; font-weight: 700; margin-bottom: 40px;">관심 종목</h2>
+        
+        <div id="watchlist-section">
+            <!-- 관심 종목이 없는 경우 -->
+            <div class="empty-state" id="empty-watchlist">
+                <div class="empty-icon">
+                    <i class="fas fa-bookmark"></i>
+                </div>
+                <h3 class="empty-title">아직 관심 종목이 없습니다</h3>
+                <p class="empty-description">
+                    주식 검색에서 관심있는 종목을 추가해보세요
+                </p>
+                <a href="/stock" class="primary-button">종목 검색하기</a>
+            </div>
+
+            <!-- 관심 종목 리스트 -->
+            <div id="watchlist-grid" style="display: none;">
+                <!-- 동적으로 로드됨 -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 페이지 로드시 초기화
+$(document).ready(function() {
+    loadUserProfile();
+    loadWatchlist();
+});
+
+// 사용자 프로필 로드
+function loadUserProfile() {
+    $.get('/api/user-profile', function(data) {
+        if (data.profile) {
+            $('#no-profile').hide();
+            $('#has-profile').show();
+            
+            // 프로필 정보 표시
+            const profileHtml = `
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; text-align: left;">
+                    <div>
+                        <p style="color: #8F8F8F; font-size: 14px; margin-bottom: 8px;">투자 성향</p>
+                        <p style="font-size: 24px; font-weight: 600; color: #1454FE;">${data.profile.type_label}</p>
+                    </div>
+                    <div>
+                        <p style="color: #8F8F8F; font-size: 14px; margin-bottom: 8px;">위험 감수도</p>
+                        <p style="font-size: 24px; font-weight: 600;">${data.profile.risk_score}점</p>
+                    </div>
+                </div>
+            `;
+            $('#profile-info').html(profileHtml);
+        } else {
+            $('#no-profile').show();
+            $('#has-profile').hide();
+        }
+    });
+}
+
+// 관심 종목 로드
+function loadWatchlist() {
+    $.get('/api/watchlist', function(data) {
+        if (data.watchlist && data.watchlist.length > 0) {
+            $('#empty-watchlist').hide();
+            $('#watchlist-grid').show();
+            
+            // 관심 종목 그리드 생성
+            let gridHtml = '<div class="features-grid">';
+            data.watchlist.forEach(stock => {
+                gridHtml += `
+                    <div class="feature-card" onclick="viewStock('${stock.ticker}')">
+                        <h4 style="font-size: 20px; font-weight: 600; margin-bottom: 8px;">${stock.name}</h4>
+                        <p style="color: #8F8F8F; font-size: 14px; margin-bottom: 16px;">${stock.ticker}</p>
+                        <p style="font-size: 24px; font-weight: 700; color: ${stock.change_percent > 0 ? '#FE3F14' : '#1454FE'};">
+                            ${stock.change_percent > 0 ? '+' : ''}${stock.change_percent.toFixed(2)}%
+                        </p>
+                    </div>
+                `;
+            });
+            gridHtml += '</div>';
+            $('#watchlist-grid').html(gridHtml);
+        } else {
+            $('#empty-watchlist').show();
+            $('#watchlist-grid').hide();
+        }
+    });
+}
+
+// 종목 상세 보기
+function viewStock(ticker) {
+    window.location.href = `/stock?ticker=${ticker}`;
+}
+</script>
+{% endblock %}

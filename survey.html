@@ -1,0 +1,771 @@
+{% extends "layout.html" %}
+
+{% block title %}투자 설문 - Pixie{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 첨부 이미지 디자인 기반 투자 설문 스타일 */
+    :root {
+        --pixie-primary: #5B6BFF;
+        --pixie-primary-hover: #4A5AEE;
+        --pixie-text-primary: #1A1A1A;
+        --pixie-text-secondary: #6B6B6B;
+        --pixie-gray-light: #F8F8F8;
+        --pixie-gray-border: #E5E5E5;
+        --pixie-white: #FFFFFF;
+        --pixie-background: #FAFBFC;
+    }
+
+    /* 전체 페이지 스타일 초기화 */
+    .survey-page {
+        min-height: 100vh;
+        background: var(--pixie-white);
+        padding-top: 0;
+    }
+
+    /* 메인 컨테이너 - Figma 디자인과 동일한 레이아웃 */
+    .survey-container {
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+        background: transparent; /* 배경 제거 */
+        margin-top: 0;
+        overflow-x: hidden; /* 가로 스크롤 방지 */
+    }
+
+    /* 히어로 섹션 - 가로형 중앙 정렬 */
+    .survey-hero {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 60px; /* gap 감소 */
+        max-width: 1400px;
+        width: 100%;
+        padding: 0 60px;
+        margin: 0 auto;
+        box-sizing: border-box;
+    }
+
+    /* 왼쪽 일러스트 영역 */
+    .survey-hero-visual {
+        flex: 0 0 500px; /* 크기 더 감소 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 500px;
+    }
+
+    .illustration-wrapper {
+        width: 500px; /* 크기 더 감소 */
+        height: 500px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .survey-illustration {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+    
+
+    /* 오른쪽 콘텐츠 영역 */
+    .survey-hero-content {
+        flex: 1 1 auto;
+        max-width: 900px; /* 더 넓게 */
+        min-width: 0;
+        overflow: visible; /* 텍스트가 잘리지 않도록 */
+    }
+
+    .survey-hero-title {
+        color: var(--pixie-text-primary);
+        font-size: 30px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 400;
+        line-height: 1.2;
+        margin-bottom: 5px;
+        letter-spacing: -0.04em;
+        white-space: nowrap; /* 한 줄로 표시 */
+    }
+    
+    /* 굵은 텍스트 스타일 */
+    .survey-hero-title strong {
+        font-weight: 700;
+    }
+
+    .survey-hero-subtitle {
+        color: var(--pixie-text-primary);
+        font-size: 30px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 400;
+        line-height: 1.2;
+        margin-bottom: 20px;
+        letter-spacing: -0.04em;
+        white-space: nowrap; /* 한 줄로 표시 */
+    }
+    
+    /* 굵은 텍스트 스타일 */
+    .survey-hero-subtitle strong {
+        font-weight: 700;
+    }
+
+    .survey-hero-description {
+        color: var(--pixie-text-secondary);
+        font-size: 13px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 400;
+        line-height: 1.7;
+        margin-bottom: 8px; /* 각 문장 사이 간격 축소 */
+        letter-spacing: -0.02em;
+        white-space: nowrap; /* 각 문장도 한 줄로 */
+    }
+    
+    /* 마지막 설명 문장 */
+    .survey-hero-description:last-of-type {
+        margin-bottom: 35px;
+    }
+
+    .survey-start-btn {
+        background: var(--pixie-primary);
+        color: var(--pixie-white);
+        font-size: 16px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 600;
+        padding: 14px 32px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s ease;
+    }
+
+    .survey-start-btn:hover {
+        background: var(--pixie-primary-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(91, 107, 255, 0.25);
+    }
+
+    /* 설문 질문 컨테이너 */
+    .survey-question-container {
+        display: none;
+        width: calc(100% - 40px); /* 좌우 여백 고려 */
+        max-width: 800px;
+        margin: 80px auto;
+        padding: 60px;
+        background: var(--pixie-white);
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        box-sizing: border-box; /* 패딩 포함한 박스 크기 계산 */
+    }
+
+    .survey-question-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .survey-category-badge {
+        background: #E8EBFF;
+        color: var(--pixie-primary);
+        font-size: 14px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 600;
+        padding: 6px 16px;
+        border-radius: 20px;
+        display: inline-block;
+        margin-bottom: 16px;
+    }
+
+    .survey-question-title {
+        color: var(--pixie-text-primary);
+        font-size: 28px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 700;
+        line-height: 1.4;
+        margin-bottom: 12px;
+    }
+
+    .survey-question-description {
+        color: var(--pixie-text-secondary);
+        font-size: 16px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 400;
+        line-height: 1.6;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .survey-question-input {
+        width: 100%;
+        min-height: 240px;
+        background: var(--pixie-gray-light);
+        border: 1px solid var(--pixie-gray-border);
+        border-radius: 12px;
+        padding: 24px;
+        font-size: 16px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 400;
+        line-height: 1.6;
+        color: var(--pixie-text-primary);
+        resize: vertical;
+        margin: 40px 0;
+        transition: all 0.2s ease;
+    }
+
+    .survey-question-input::placeholder {
+        color: #B0B0B0;
+    }
+
+    .survey-question-input:focus {
+        outline: none;
+        border-color: var(--pixie-primary);
+        background: var(--pixie-white);
+    }
+
+    /* 네비게이션 컨트롤 */
+    .survey-navigation {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    .survey-nav-buttons {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .survey-nav-btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .survey-nav-btn.prev {
+        background: var(--pixie-white);
+        color: var(--pixie-text-secondary);
+        border: 1px solid var(--pixie-gray-border);
+    }
+
+    .survey-nav-btn.prev:hover {
+        background: var(--pixie-gray-light);
+        color: var(--pixie-text-primary);
+    }
+
+    .survey-nav-btn.next {
+        background: #D0D0D0;
+        color: var(--pixie-white);
+        cursor: not-allowed;
+    }
+
+    .survey-nav-btn.next.active {
+        background: var(--pixie-primary);
+        color: var(--pixie-white);
+        cursor: pointer;
+    }
+
+    .survey-nav-btn.next.active:hover {
+        background: var(--pixie-primary-hover);
+    }
+
+    /* 진행률 표시 */
+    .survey-progress-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .survey-progress-text {
+        color: var(--pixie-text-secondary);
+        font-size: 13px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 500;
+    }
+
+    .survey-progress-bar {
+        width: 200px;
+        height: 4px;
+        background: var(--pixie-gray-border);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .survey-progress-fill {
+        height: 100%;
+        background: var(--pixie-primary);
+        transition: width 0.3s ease;
+    }
+
+    /* 반응형 디자인 */
+    @media (max-width: 1024px) {
+        .survey-hero {
+            gap: 60px;
+            padding: 0 30px;
+        }
+
+        .survey-hero-visual {
+            width: 450px;
+            flex: 0 0 450px;
+        }
+
+        .illustration-wrapper {
+            width: 450px;
+            height: 450px;
+        }
+
+        .survey-hero-title {
+            font-size: 42px;
+            white-space: normal; /* 화면이 작을 때는 줄바꿈 허용 */
+        }
+
+        .survey-hero-subtitle {
+            font-size: 42px;
+            white-space: normal; /* 화면이 작을 때는 줄바꿈 허용 */
+        }
+    }
+
+    @media (max-width: 768px) {
+        .survey-container {
+            padding: 40px 15px;
+            margin-top: 0;
+        }
+
+        .survey-hero {
+            flex-direction: column;
+            gap: 30px;
+            text-align: center;
+            padding: 0 15px;
+        }
+
+        .survey-hero-visual {
+            order: 1;
+            max-width: 320px;
+            width: 100%;
+        }
+
+        .survey-hero-content {
+            order: 2;
+            max-width: 100%;
+            text-align: center;
+        }
+
+        .illustration-wrapper {
+            max-width: 320px;
+            width: 100%;
+        }
+
+        .survey-hero-title {
+            font-size: 36px;
+            white-space: normal;
+        }
+
+        .survey-hero-subtitle {
+            font-size: 36px;
+            white-space: normal;
+        }
+        
+        .survey-hero-description {
+            font-size: 14px;
+            padding: 0 10px;
+        }
+
+        .survey-question-container {
+            padding: 30px 15px;
+            margin: 30px auto;
+        }
+
+        .survey-navigation {
+            flex-direction: column-reverse;
+            gap: 20px;
+        }
+    }
+
+    /* 네비게이션 바 숨기기 옵션 */
+    body.survey-page .pixie-navbar {
+        background: transparent;
+        border-bottom: none;
+        box-shadow: none;
+    }
+    
+    /* 전체 박스 사이징 설정 */
+    * {
+        box-sizing: border-box;
+    }
+    
+    /* body 스크롤 방지 */
+    body.survey-page {
+        overflow-x: hidden;
+        max-width: 100vw;
+    }
+    
+    /* Extra large screen optimization */
+    @media (min-width: 1600px) {
+        .survey-hero-title,
+        .survey-hero-subtitle {
+            font-size: 34px;
+            white-space: nowrap;
+        }
+        
+        .survey-hero-description {
+            font-size: 14px;
+        }
+        
+        .illustration-wrapper,
+        .survey-hero-visual {
+            width: 550px;
+            height: 550px;
+            flex: 0 0 550px;
+        }
+    }
+    
+    /* Large screen optimization */
+    @media (min-width: 1400px) and (max-width: 1599px) {
+        .survey-hero-title,
+        .survey-hero-subtitle {
+            font-size: 32px;
+        }
+    }
+    
+    @media (min-width: 1200px) and (max-width: 1399px) {
+        .survey-hero {
+            gap: 60px; /* gap 감소 */
+            padding: 0 40px;
+        }
+        
+        .survey-hero-visual {
+            max-width: 500px; /* 이미지 크기 감소 */
+        }
+        
+        .illustration-wrapper {
+            max-width: 500px;
+        }
+        
+        .survey-hero-title,
+        .survey-hero-subtitle {
+            font-size: 30px;
+            white-space: normal; /* 필요시 줄바꿈 허용 */
+        }
+        
+        .survey-hero-description {
+            white-space: normal; /* 작은 화면에서는 줄바꿈 허용 */
+            font-size: 12px;
+        }
+    }
+    
+    /* Small screen adjustments */
+    @media (max-width: 480px) {
+        .survey-container {
+            padding: 30px 10px;
+        }
+        
+        .survey-hero {
+            gap: 20px;
+        }
+        
+        .survey-hero-visual {
+            max-width: 280px;
+        }
+        
+        .survey-hero-title {
+            font-size: 28px;
+            white-space: normal;
+        }
+        
+        .survey-hero-subtitle {
+            font-size: 28px;
+            white-space: normal;
+        }
+        
+        .survey-hero-description {
+            font-size: 13px;
+        }
+        
+        .illustration-wrapper {
+            max-width: 280px;
+        }
+        
+        .survey-start-btn {
+            font-size: 14px;
+            padding: 12px 24px;
+            width: 100%;
+            max-width: 300px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body_class %}survey-page{% endblock %}
+
+{% block content %}
+<div class="survey-container">
+    <!-- 메인 히어로 섹션 -->
+    <div class="survey-hero" id="survey-intro">
+        <!-- 왼쪽 일러스트 영역 -->
+        <div class="survey-hero-visual">
+            <div class="illustration-wrapper">
+                <img src="{{ url_for('static', filename='images/투자 설문 1.png') }}" 
+                     alt="투자 설문 일러스트" 
+                     class="survey-illustration">
+            </div>
+        </div>
+
+        <!-- 오른쪽 콘텐츠 영역 -->
+        <div class="survey-hero-content">
+            <h1 class="survey-hero-title">
+                당신의 <strong>투자 DNA</strong>를 분석합니다
+            </h1>
+            <h2 class="survey-hero-subtitle">
+                픽시와 함께 <strong>나만의 전략</strong>을 찾아보세요
+            </h2>
+            <p class="survey-hero-description">
+                당신만의 투자 스타일, 얼마나 알고 계신가요?<br>
+                픽시는 AI 기반 분석을 통해 투자 성향을 정밀하게 진단하고, 시장의 흐름에 딱 맞는 전략을 제안해드려요.<br>
+                몇 가지 간단한 질문에 답하면, 나에게 꼭 맞는 투자 여정을 시작할 수 있어요.
+            </p>
+            <button class="survey-start-btn" onclick="startSurvey()">
+                투자 성향 분석 시작
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 설문 질문 컨테이너 -->
+<div class="survey-question-container" id="survey-questions">
+    <div class="survey-question-header">
+        <div class="survey-category-badge" id="question-category">투자 가치관</div>
+        <h2 class="survey-question-title" id="question-title">
+            투자를 할 때 가장 중요한 요소가 무엇이라고 생각하나요?
+        </h2>
+        <p class="survey-question-description" id="question-description">
+            큰 수익을 위한 도전적인 투자, 혹은 안정적인 수익을 위한 안전한 투자 중 당신의 생각에 더 가까운 방향은 무엇인가요? 자유롭게 작성해 주세요.
+        </p>
+    </div>
+    <textarea class="survey-question-input" id="question-input" placeholder="내용을 작성해주세요."></textarea>
+    
+    <!-- 네비게이션 컨트롤 -->
+    <div class="survey-navigation" id="survey-nav">
+        <div class="survey-nav-buttons">
+            <button class="survey-nav-btn prev" onclick="previousQuestion()" style="display: none;">
+                <i class="fas fa-arrow-left"></i>
+                이전
+            </button>
+            <button class="survey-nav-btn next" id="next-btn" onclick="nextQuestion()">
+                <span id="next-btn-text">다음</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+        
+        <div class="survey-progress-container">
+            <div class="survey-progress-text" id="progress-text">1/10</div>
+            <div class="survey-progress-bar">
+                <div class="survey-progress-fill" id="progress-fill" style="width: 10%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentQuestion = 0;
+let surveyAnswers = {};
+
+const surveyQuestions = [
+    {
+        category: "투자 가치관",
+        title: "투자를 할 때 가장 중요한 요소가 무엇이라고 생각하나요?",
+        description: "큰 수익을 위한 도전적인 투자, 혹은 안정적인 수익을 위한 안전한 투자 중 당신의 생각에 더 가까운 방향은 무엇인가요? 자유롭게 작성해 주세요."
+    },
+    {
+        category: "위험 인식",
+        title: "투자에서 손실이 발생했을 때 어떤 기분이 드시나요?",
+        description: "예상치 못한 시장 변동으로 투자 손실이 생겼을 때의 감정과 대응 방식에 대해 자유롭게 적어주세요."
+    },
+    {
+        category: "투자 경험",
+        title: "과거 투자 경험에서 가장 인상 깊었던 순간은 언제인가요?",
+        description: "성공이든 실패든, 가장 기억에 남는 투자 경험과 그때의 감정을 공유해 주세요."
+    },
+    {
+        category: "정보 수집",
+        title: "투자할 종목을 선택하려고 합니다. 어떤 정보를 참고하는 것이 좋을까요?",
+        description: "다양한 투자자들의 의견을 들어보기 위해 네이버 증권의 커뮤니티를 확인해 볼 수도 있고, 신뢰성있는 정보를 위해 뉴스나 전문가의 칼럼을 참고할 수도 있어요. 요즘 화두가 되는 AI 투자 분석 도구나 ChatGPT 같은 생성형 AI도 활용할 수 있습니다. 여러분들은 어떤 정보를 어떻게 활용할 예정인가요?"
+    },
+    {
+        category: "위험 감수성",
+        title: "high risk-high return 이라는 말을 들어보셨나요? 어떻게 생각하시나요?",
+        description: "특히 최근 양자컴퓨팅 관련 주식이나 새로운 AI 칩셋 기업들처럼 변동성이 큰 자산에 대해 어떻게 생각하시나요? 위험이 커도 높은 수익률을 추구하시나요? 아니면 수익이 낮더라도 안정적인 수익률이 나을까요?"
+    },
+    {
+        category: "투자 상황 판단",
+        title: "출근길 뉴스를 보니 내가 보유하고 있는 기술주와 관련된 안 좋은 소식이 보도되고 있어요.",
+        description: "그런데 간접적이기도 하고, 시장 반응도 애매한 상황이라면 어떻게 하실건가요? 주식을 매도하는게 나을까요? 혹은 기다리시나요? 선택과 이유를 함께 적어주세요."
+    },
+    {
+        category: "스트레스 관리",
+        title: "투자로 인한 스트레스를 어떻게 관리하시나요?",
+        description: "주가 변동이나 투자 결과로 인한 심리적 부담을 어떻게 다루시는지 경험을 공유해 주세요."
+    },
+    {
+        category: "투자 지식",
+        title: "최근의 경제 상황과 시장 변화에 대해 어느 정도 이해하고 계신가요?",
+        description: "투자 관련 지식을 어떻게 쌓고 계시는지, 현재 시장 상황에 대한 이해도는 어느 정도인지 자유롭게 기술해 주세요."
+    },
+    {
+        category: "위기 대응",
+        title: "나의 투자 실력을 곰곰이 생각하다보니 그 찰나에 나의 주식이 크게 떨어졌어요.",
+        description: "최근 AI 기술 기업들의 과열 우려나 중국의 AI 반도체 규제 강화와 관련이 있을 수도 있습니다. 지금 이 순간을 어떻게 대처하실건가요?"
+    },
+    {
+        category: "새로운 기회",
+        title: "재빠른 대처 능력으로 위기를 잘 극복해 내었습니다.",
+        description: "이젠 스스로도 투자를 어느정도 잘 하고 다음 과정으로 나아가도 되겠다는 생각이 들기도 합니다. 지금 이 생각을 한 순간 눈 앞에 지속가능 투자(ESG) 관련 새로운 금융 상품이나 우주항공, 바이오테크 같은 신흥 분야 투자 기회가 있다면 어떤 기분과 생각이 드시나요?"
+    }
+];
+
+function startSurvey() {
+    document.getElementById('survey-intro').parentElement.style.display = 'none';
+    document.getElementById('survey-questions').style.display = 'block';
+    // 첫 번째 질문에서는 이전 버튼 숨기기
+    document.querySelector('.survey-nav-btn.prev').style.display = 'none';
+    updateQuestion();
+}
+
+function updateQuestion() {
+    const question = surveyQuestions[currentQuestion];
+    document.getElementById('question-category').textContent = question.category;
+    document.getElementById('question-title').textContent = question.title;
+    document.getElementById('question-description').textContent = question.description;
+    document.getElementById('question-input').value = surveyAnswers[currentQuestion] || '';
+    
+    // 진행률 업데이트
+    const progress = ((currentQuestion + 1) / surveyQuestions.length) * 100;
+    document.getElementById('progress-fill').style.width = progress + '%';
+    document.getElementById('progress-text').textContent = `${currentQuestion + 1}/${surveyQuestions.length}`;
+    
+    // 이전 버튼 표시/숨기기
+    const prevBtn = document.querySelector('.survey-nav-btn.prev');
+    if (currentQuestion > 0) {
+        prevBtn.style.display = 'flex';
+    } else {
+        prevBtn.style.display = 'none';
+    }
+    
+    // 마지막 질문인지 확인
+    const nextBtn = document.getElementById('next-btn');
+    const nextBtnText = document.getElementById('next-btn-text');
+    if (currentQuestion === surveyQuestions.length - 1) {
+        nextBtnText.textContent = 'AI 분석 시작하기';
+    } else {
+        nextBtnText.textContent = '다음';
+    }
+    
+    // 답변이 있으면 다음 버튼 활성화
+    checkAnswerAndUpdateButton();
+}
+
+function checkAnswerAndUpdateButton() {
+    const input = document.getElementById('question-input');
+    const nextBtn = document.getElementById('next-btn');
+    
+    if (input.value.trim()) {
+        nextBtn.classList.add('active');
+    } else {
+        nextBtn.classList.remove('active');
+    }
+}
+
+function nextQuestion() {
+    const input = document.getElementById('question-input');
+    if (!input.value.trim()) {
+        alert('답변을 입력해 주세요.');
+        return;
+    }
+    
+    surveyAnswers[currentQuestion] = input.value.trim();
+    
+    if (currentQuestion < surveyQuestions.length - 1) {
+        currentQuestion++;
+        updateQuestion();
+    } else {
+        // 설문 완료 - 결과 페이지로 이동
+        submitSurvey();
+    }
+}
+
+function previousQuestion() {
+    if (currentQuestion > 0) {
+        const input = document.getElementById('question-input');
+        surveyAnswers[currentQuestion] = input.value.trim();
+        currentQuestion--;
+        updateQuestion();
+    }
+}
+
+function submitSurvey() {
+    // 설문 답변을 배열 형태로 변환
+    const answersArray = [];
+    for (let i = 0; i < surveyQuestions.length; i++) {
+        if (surveyAnswers[i]) {
+            answersArray.push({
+                question: surveyQuestions[i].title,
+                answer: surveyAnswers[i]
+            });
+        }
+    }
+    
+    // 설문 데이터를 서버로 전송
+    fetch('/submit_survey', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            answers: answersArray,
+            timestamp: new Date().toISOString()
+        })
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        if (data.success) {
+            console.log('Success! Redirecting to /survey/result');
+            // 결과 페이지로 리다이렉트
+            window.location.href = '/survey/result';
+        } else {
+            console.error('Submit failed:', data);
+            alert('설문 제출에 실패했습니다. 다시 시도해 주세요.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('설문 제출 중 오류가 발생했습니다.');
+    });
+}
+
+// 입력 필드 변화 감지
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('question-input');
+    if (input) {
+        input.addEventListener('input', checkAnswerAndUpdateButton);
+    }
+});
+</script>
+{% endblock %}

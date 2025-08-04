@@ -1,0 +1,50 @@
+{% extends 'layout.html' %}
+{% block title %}알림/경고 이력{% endblock %}
+{% block content %}
+<div class="container alert-history-container">
+    <h1>알림/경고 이력</h1>
+    <div id="alert-history-result" class="card mt-3">
+        <div class="card-header">내 알림/경고 이력</div>
+        <div class="card-body">
+            <ul id="alert-history-list" class="list-group"></ul>
+            <div id="alert-history-empty" style="display:none;">저장된 알림/경고 이력이 없습니다.</div>
+            <div id="alert-history-loading" class="text-center my-3" style="display:none;"><div class="spinner-border text-primary"></div></div>
+        </div>
+    </div>
+    <button class="btn btn-outline-primary mt-3" id="refresh-alert-history">새로고침</button>
+</div>
+<script>
+function loadAlertHistory() {
+    $('#alert-history-loading').show();
+    $('#alert-history-empty').hide();
+    $('#alert-history-list').empty();
+    $.get('/api/alert-history', function(res) {
+        $('#alert-history-loading').hide();
+        if (res.success && res.alert_history && res.alert_history.length > 0) {
+            res.alert_history.slice(0, 20).forEach(function(alert) {
+                const date = alert.created_at || alert.date || '-';
+                const content = alert.message || alert.content || '';
+                const level = alert.level || '-';
+                const isRead = alert.is_read ? '' : 'fw-bold';
+                const alertId = alert.id || '';
+                const html = `<li class="list-group-item ${isRead}" data-id="${alertId}" style="cursor:pointer;">
+                    [${date}] <b>${content}</b> <span class="badge bg-danger ms-2">${level}</span>
+                </li>`;
+                $('#alert-history-list').append(html);
+            });
+        } else {
+            $('#alert-history-empty').show();
+        }
+    }).fail(function(){
+        $('#alert-history-loading').hide();
+        $('#alert-history-empty').text('알림 이력을 불러오지 못했습니다.').show();
+    });
+}
+$(function(){
+    loadAlertHistory();
+    $('#refresh-alert-history').click(function(){
+        loadAlertHistory();
+    });
+});
+</script>
+{% endblock %} 

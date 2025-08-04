@@ -1,0 +1,935 @@
+{% extends "layout.html" %}
+
+{% block title %}투자학습 - 픽시{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Reset and base styles */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        background-color: #FFFFFF !important;
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    /* Hero Section */
+    .hero-section {
+        background-color: #FFFFFF !important;
+        background-image: none !important;
+        padding: 100px 0 80px;
+        position: relative;
+        overflow: hidden;
+        min-height: 500px;
+    }
+    
+    .hero-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 80px;
+    }
+    
+    .hero-content {
+        flex: 1;
+        max-width: 600px;
+    }
+    
+    .hero-title {
+        font-size: 48px;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 20px;
+        color: #000000;
+    }
+    
+    .hero-subtitle {
+        font-size: 18px;
+        line-height: 1.6;
+        color: #666666;
+        margin-bottom: 40px;
+    }
+    
+    .progress-container {
+        display: inline-block;
+        width: 400px;
+        max-width: 100%;
+    }
+    
+    .progress-label {
+        display: inline-block;
+        background: #5B7FFF;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    
+    .progress-bar-wrapper {
+        width: 100%;
+        height: 36px;
+        background: #E9ECEF;
+        border-radius: 18px;
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    
+    .progress-bar-inner {
+        height: 100%;
+        background: #5B7FFF;
+        width: 20%;
+        transition: width 1s ease;
+        position: relative;
+    }
+    
+    .progress-percentage-label {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 16px;
+        font-weight: 700;
+        color: #5B7FFF;
+        z-index: 2;
+    }
+    
+    .hero-visual {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .hero-image {
+        width: 100%;
+        height: auto;
+        max-width: 180px;
+        object-fit: contain;
+    }
+    
+    /* Recent Study Section */
+    .recent-study-section {
+        background-color: #FFFFFF !important;
+        padding: 60px 0;
+        border-bottom: 1px solid #F0F0F0;
+    }
+    
+    .recent-study-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    
+    .recent-header {
+        margin-bottom: 30px;
+    }
+    
+    .recent-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #000000;
+    }
+    
+    .progress-info {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .progress-text {
+        font-size: 16px;
+        color: #666666;
+    }
+    
+    .progress-bar-container {
+        width: 200px;
+        height: 8px;
+        background: #E9ECEF;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .progress-bar-fill {
+        height: 100%;
+        background: #5B7FFF;
+        width: 65%;
+        transition: width 0.5s ease;
+    }
+    
+    .progress-percentage {
+        font-size: 18px;
+        font-weight: 700;
+        color: #5B7FFF;
+    }
+    
+    .recent-cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+    
+    .recent-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid #E9ECEF;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .recent-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .recent-icon {
+        width: 48px;
+        height: 48px;
+        background: #F8F9FA;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        flex-shrink: 0;
+    }
+    
+    .recent-info {
+        flex: 1;
+    }
+    
+    .recent-label {
+        font-size: 14px;
+        color: #666666;
+        margin-bottom: 4px;
+    }
+    
+    .recent-value {
+        font-size: 18px;
+        font-weight: 600;
+        color: #000000;
+    }
+    
+    /* Study Section */
+    .study-section {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 80px 20px;
+    }
+    
+    /* Content Section */
+    .content-section {
+        background-color: #FFFFFF !important;
+        padding: 80px 0;
+    }
+    
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    
+    .section-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+    
+    .section-title {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: #212529;
+    }
+    
+    .section-subtitle {
+        font-size: 16px;
+        color: #6C757D;
+        line-height: 1.6;
+    }
+    
+    .study-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        margin-bottom: 60px;
+    }
+    
+    .study-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid #E9ECEF;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        height: 380px;
+    }
+    
+    .study-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-header {
+        padding: 20px 20px 0;
+    }
+    
+    .card-badge {
+        display: inline-block;
+        background: #E7F0FF;
+        color: #5B7FFF;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+    
+    .card-icon-container {
+        width: 100%;
+        height: 180px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    
+    .card-icon {
+        width: 120px;
+        height: 120px;
+        background: #F8F9FA;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 60px;
+    }
+    
+    .card-content {
+        padding: 0 20px 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .card-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #212529;
+    }
+    
+    .card-description {
+        font-size: 14px;
+        color: #6C757D;
+        line-height: 1.5;
+        margin-bottom: 16px;
+        flex: 1;
+    }
+    
+    .card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 16px;
+        border-top: 1px solid #F0F2F5;
+    }
+    
+    .progress-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+    }
+    
+    .progress-bar {
+        flex: 1;
+        height: 6px;
+        background: #E9ECEF;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: #5B7FFF;
+        border-radius: 3px;
+        transition: width 0.5s ease;
+    }
+    
+    .progress-percent {
+        font-size: 14px;
+        font-weight: 600;
+        color: #5B7FFF;
+        min-width: 40px;
+        text-align: right;
+    }
+    
+    /* FAQ Section */
+    .faq-section {
+        background: #FFFFFF;
+        padding: 80px 0;
+        border-top: 1px solid #F0F0F0;
+    }
+    
+    .faq-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    
+    .faq-list {
+        margin-top: 40px;
+    }
+    
+    .faq-item {
+        background: white;
+        border: 1px solid #E9ECEF;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        overflow: hidden;
+    }
+    
+    .faq-question {
+        padding: 20px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        color: #212529;
+        transition: background 0.3s ease;
+    }
+    
+    .faq-question:hover {
+        background: #F8F9FA;
+    }
+    
+    .faq-icon {
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6C757D;
+        transition: transform 0.3s ease;
+        font-size: 12px;
+    }
+    
+    .faq-item.active .faq-icon {
+        transform: rotate(180deg);
+    }
+    
+    .faq-answer {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease, padding 0.3s ease;
+    }
+    
+    .faq-item.active .faq-answer {
+        max-height: 500px;
+        padding: 0 24px 20px;
+    }
+    
+    .faq-answer p {
+        font-size: 14px;
+        line-height: 1.6;
+        color: #6C757D;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .hero-container {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .hero-content {
+            max-width: 100%;
+        }
+        
+        .hero-visual {
+            width: 350px;
+            height: 350px;
+            margin-top: 40px;
+        }
+        
+        .hero-image {
+            max-width: 300px;
+        }
+        
+        .recent-cards {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .study-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 60px 0 40px;
+        }
+        
+        .hero-title {
+            font-size: 36px;
+        }
+        
+        .hero-subtitle {
+            font-size: 16px;
+        }
+        
+        .hero-visual {
+            width: 280px;
+            height: 280px;
+            margin-top: 30px;
+        }
+        
+        .hero-image {
+            max-width: 240px;
+        }
+        
+        .progress-container {
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .progress-label {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        
+        .progress-bar-wrapper {
+            height: 32px;
+        }
+        
+        .recent-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 20px;
+        }
+        
+        .progress-info {
+            width: 100%;
+            justify-content: space-between;
+        }
+        
+        .progress-bar-container {
+            flex: 1;
+            margin: 0 10px;
+        }
+        
+        .recent-cards {
+            grid-template-columns: 1fr;
+        }
+        
+        .study-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .section-title {
+            font-size: 28px;
+        }
+        
+        .faq-question {
+            font-size: 15px;
+            padding: 16px 20px;
+        }
+    }
+    
+    /* Smooth scroll */
+    html {
+        scroll-behavior: smooth;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-container">
+        <div class="hero-content">
+            <h1 class="hero-title">마냥 어렵기만 하다고?<br>지금부터 제대로 배워봐요!</h1>
+            <p class="hero-subtitle">
+                투자의 기초부터 심화 내용까지, 단계별로 차근차근.<br>
+                쉽고 체계적으로 투자 지식을 쌓아보세요.
+            </p>
+            <div class="progress-container">
+                <div>
+                    <div class="progress-label">나의 학습 진행률</div>
+                </div>
+                <div class="progress-bar-wrapper">
+                    <div class="progress-bar-inner" id="main-progress-bar"></div>
+                    <div class="progress-percentage-label" id="overall-progress">20%</div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <img src="{{ url_for('static', filename='images/learn1.png') }}" alt="학습 일러스트" class="hero-image">
+        </div>
+    </div>
+</section>
+
+<!-- Recent Study Section -->
+<section class="recent-study-section">
+    <div class="recent-study-container">
+        <div class="recent-header">
+            <h2 class="recent-title">최근 학습 분야</h2>
+        </div>
+        
+        <div class="recent-cards">
+            <a href="{{ url_for('learning_module', module='words') }}" class="recent-card">
+                <div class="recent-icon">📚</div>
+                <div class="recent-info">
+                    <div class="recent-label">단어학습</div>
+                    <div class="recent-value">PER (주가수익비율)</div>
+                </div>
+            </a>
+            
+            <a href="{{ url_for('learning_module', module='cardnews') }}" class="recent-card">
+                <div class="recent-icon">✅</div>
+                <div class="recent-info">
+                    <div class="recent-label">완료</div>
+                    <div class="recent-value">4개</div>
+                </div>
+            </a>
+            
+            <a href="#" class="recent-card">
+                <div class="recent-icon">💡</div>
+                <div class="recent-info">
+                    <div class="recent-label">학습 팁</div>
+                    <div class="recent-value">투자 용어 암기법</div>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Content Section -->
+<section class="content-section" id="study-modules">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">무엇을 배우고 싶으신가요?</h2>
+            <p class="section-subtitle">
+                기초부터 심화까지, 단계별 맞춤 학습으로<br>
+                나만의 투자 실력을 키워보세요
+            </p>
+        </div>
+    
+        <div class="study-grid">
+            <a href="{{ url_for('learning_module', module='words') }}" class="study-card">
+                <div class="card-header">
+                    <span class="card-badge">기초 필수</span>
+                </div>
+                <div class="card-icon-container">
+                    <div class="card-icon">📖</div>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">투자 단어 사전</h3>
+                    <p class="card-description">
+                        PER, PBR, ROE... 어려운 투자 용어들을 쉽고 재미있게 배워보세요
+                    </p>
+                    <div class="card-footer">
+                        <div class="progress-info">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 80%;"></div>
+                            </div>
+                            <span class="progress-percent">80%</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="{{ url_for('learning_module', module='quiz') }}" class="study-card">
+                <div class="card-header">
+                    <span class="card-badge">실력 테스트</span>
+                </div>
+                <div class="card-icon-container">
+                    <div class="card-icon">🎯</div>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">투자 퀴즈 챌린지</h3>
+                    <p class="card-description">
+                        배운 내용을 퀴즈로 확인하고 나의 투자 레벨을 올려보세요
+                    </p>
+                    <div class="card-footer">
+                        <div class="progress-info">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%;"></div>
+                            </div>
+                            <span class="progress-percent">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="{{ url_for('news_page') }}" class="study-card">
+                <div class="card-header">
+                    <span class="card-badge">인기 콘텐츠</span>
+                </div>
+                <div class="card-icon-container">
+                    <div class="card-icon">📊</div>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">카드뉴스로 배우기</h3>
+                    <p class="card-description">
+                        한 장 한 장 넘기며 배우는 투자의 핵심 개념과 전략
+                    </p>
+                    <div class="card-footer">
+                        <div class="progress-info">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%;"></div>
+                            </div>
+                            <span class="progress-percent">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section">
+    <div class="faq-container">
+        <div class="section-header">
+            <h2 class="section-title">자주 묻는 질문</h2>
+            <p class="section-subtitle">투자 학습에 대해 궁금한 점이 있으신가요?</p>
+        </div>
+        
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-question">
+                    투자 초보자도 따라갈 수 있나요?
+                    <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        물론입니다! 픽시의 투자 학습은 완전 초보자부터 경험자까지 모두를 위해 설계되었어요. 
+                        기초 용어부터 차근차근 설명하고, 실제 예시를 통해 이해하기 쉽게 구성했습니다. 
+                        자신의 속도에 맞춰 학습할 수 있으니 부담 없이 시작하세요.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    학습 진도는 어떻게 관리되나요?
+                    <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        각 학습 모듈별로 진행률이 자동으로 저장되며, 언제든지 이어서 학습할 수 있습니다. 
+                        학습 대시보드에서 전체 진행 상황을 한눈에 확인할 수 있고, 
+                        목표 달성 시 배지와 포인트를 획득하여 동기부여가 됩니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    실제 투자에 어떻게 도움이 되나요?
+                    <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        이론적인 지식뿐만 아니라 실제 시장 데이터를 활용한 사례 중심 학습으로 
+                        바로 적용 가능한 투자 전략을 배울 수 있습니다. 
+                        학습한 내용은 픽시 챗봇과의 대화에서 활용되어 더 정확한 투자 조언을 받을 수 있어요.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    학습 콘텐츠는 계속 업데이트되나요?
+                    <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        네, 시장 변화와 최신 투자 트렌드를 반영하여 콘텐츠를 지속적으로 업데이트하고 있습니다. 
+                        새로운 투자 상품이나 규제 변경 사항 등도 빠르게 반영하여 
+                        항상 최신 정보로 학습할 수 있도록 노력하고 있어요.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+// Progress animation
+document.addEventListener('DOMContentLoaded', function() {
+    // Calculate overall progress from module progress
+    function calculateOverallProgress() {
+        const moduleProgresses = [];
+        const studyCards = document.querySelectorAll('.study-card');
+        
+        studyCards.forEach(card => {
+            const progressFill = card.querySelector('.progress-fill');
+            if (progressFill) {
+                const width = parseFloat(progressFill.style.width) || 0;
+                moduleProgresses.push(width);
+            }
+        });
+        
+        if (moduleProgresses.length > 0) {
+            const averageProgress = moduleProgresses.reduce((a, b) => a + b, 0) / moduleProgresses.length;
+            return Math.round(averageProgress);
+        }
+        return 0;
+    }
+    
+    // Update overall progress display
+    function updateOverallProgress() {
+        const overallProgress = calculateOverallProgress();
+        
+        // Update main progress bar
+        const mainProgressBar = document.getElementById('main-progress-bar');
+        const overallProgressElement = document.getElementById('overall-progress');
+        if (mainProgressBar) {
+            mainProgressBar.style.width = `${overallProgress}%`;
+        }
+        if (overallProgressElement) {
+            overallProgressElement.textContent = `${overallProgress}%`;
+        }
+        
+    }
+    
+    // Initial animation
+    setTimeout(() => {
+        updateOverallProgress();
+    }, 500);
+    
+    // Animate progress bars in cards and update overall progress
+    const progressBars = document.querySelectorAll('.progress-fill');
+    progressBars.forEach((fill, index) => {
+        setTimeout(() => {
+            fill.style.width = fill.style.width;
+            // Update overall progress after each module animation
+            updateOverallProgress();
+        }, 700 + (index * 200));
+    });
+    
+    // FAQ toggle functionality
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        
+        question.addEventListener('click', () => {
+            // Close other items
+            faqItems.forEach(otherItem => {
+                if (otherItem !== item) {
+                    otherItem.classList.remove('active');
+                }
+            });
+            
+            // Toggle current item
+            item.classList.toggle('active');
+        });
+    });
+    
+    // Learning module click tracking
+    const studyCards = document.querySelectorAll('.study-card');
+    studyCards.forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Track learning module access
+            const moduleTitle = this.querySelector('.card-title').textContent;
+            console.log('Accessing learning module:', moduleTitle);
+            
+            // You can add analytics tracking here
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'learning_module_click', {
+                    'module_name': moduleTitle
+                });
+            }
+        });
+    });
+    
+    // Update progress in real-time (if needed)
+    function updateProgress(moduleId, newProgress) {
+        const card = document.querySelector(`[data-module="${moduleId}"]`);
+        if (card) {
+            const progressFill = card.querySelector('.progress-fill');
+            const progressPercent = card.querySelector('.progress-percent');
+            
+            progressFill.style.width = `${newProgress}%`;
+            progressPercent.textContent = `${newProgress}%`;
+        }
+    }
+    
+    // Example: Fetch and update progress from server
+    function fetchLearningProgress() {
+        fetch('/api/learning/progress')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.progress) {
+                    // Update module progress
+                    if (data.progress.modules) {
+                        // Update study cards progress bars
+                        const studyCards = document.querySelectorAll('.study-card');
+                        studyCards.forEach((card, index) => {
+                            const moduleType = ['words', 'quiz', 'cardnews'][index];
+                            const progress = data.progress.modules[moduleType] || 0;
+                            const progressFill = card.querySelector('.progress-fill');
+                            const progressPercent = card.querySelector('.progress-percent');
+                            
+                            if (progressFill && progressPercent) {
+                                progressFill.style.width = `${progress}%`;
+                                progressPercent.textContent = `${progress}%`;
+                            }
+                        });
+                        
+                        // Calculate and update overall progress after updating modules
+                        setTimeout(() => {
+                            updateOverallProgress();
+                        }, 100);
+                    } else {
+                        // If no module data, use provided overall progress
+                        const overallProgress = data.progress.overall || calculateOverallProgress();
+                        
+                        // Update main progress bar
+                        const mainProgressBar = document.getElementById('main-progress-bar');
+                        const overallProgressElement = document.getElementById('overall-progress');
+                        if (mainProgressBar) {
+                            mainProgressBar.style.width = `${overallProgress}%`;
+                        }
+                        if (overallProgressElement) {
+                            overallProgressElement.textContent = `${overallProgress}%`;
+                        }
+                        
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching learning progress:', error);
+            });
+    }
+    
+    // Fetch progress on page load
+    fetchLearningProgress();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Pixie - AI 투자 어드바이저{% endblock %}</title>
+    
+    <!-- 폰트 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome 아이콘 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 커스텀 CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ range(1, 9999) | random }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot-widget.css') }}?v={{ range(1, 9999) | random }}">
+    
+    <style>
+        :root {
+            --primary-color: #1454FE;
+            --primary-dark: #0B3DCF;
+            --primary-light: #E6EFFF;
+            --secondary-color: #6C7B95;
+            --success-color: #22C55E;
+            --danger-color: #EF4444;
+            --warning-color: #F59E0B;
+            --dark-color: #1F2937;
+            --light-color: #F8FAFC;
+            --border-color: #E2E8F0;
+            --text-primary: #0F172A;
+            --text-secondary: #64748B;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #1454FE 0%, #0B3DCF 100%);
+            --gradient-secondary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--light-color);
+            font-size: 16px;
+            letter-spacing: -0.02em;
+        }
+        
+        /* Navigation Styles */
+        .pixie-navbar {
+            background: #FFFFFF !important;
+            border-bottom: 1px solid #E5E7EB !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1000 !important;
+            padding: 0 !important;
+            min-height: 64px !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+        
+        .pixie-navbar .container-fluid {
+            display: flex !important;
+            align-items: center !important;
+            height: 100% !important;
+        }
+        
+        /* 로고 이미지 강제 표시 */
+        .pixie-navbar .navbar-brand img {
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            height: 40px !important;
+            width: auto !important;
+            max-width: none !important;
+            min-width: auto !important;
+            position: relative !important;
+            z-index: 10 !important;
+        }
+        
+        /* 아이콘 이미지 강제 표시 */
+        .nav-icon-link img {
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            width: 20px !important;
+            height: 20px !important;
+            max-width: none !important;
+            min-width: 20px !important;
+            position: relative !important;
+            z-index: 10 !important;
+        }
+        
+        /* 이미지를 숨길 수 있는 모든 스타일 제거 */
+        img {
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        /* Pixie 텍스트가 표시되지 않도록 */
+        .pixie-navbar .navbar-brand {
+            font-size: 0 !important;
+            color: transparent !important;
+        }
+        
+        /* 로고 이미지만 표시 */
+        .pixie-navbar .navbar-brand img {
+            font-size: initial !important;
+        }
+        
+        
+        .pixie-navbar .navbar-nav {
+            gap: 40px;
+            display: flex !important;
+            align-items: center !important;
+            margin-bottom: 0 !important;
+        }
+        
+        .pixie-navbar .nav-item {
+            display: flex !important;
+            align-items: center !important;
+        }
+        
+        .pixie-navbar .nav-link:hover,
+        .pixie-navbar .nav-link.active {
+            color: var(--primary-color) !important;
+            background-color: var(--primary-light);
+        }
+        
+        .pixie-navbar .navbar-toggler {
+            border: none;
+            padding: 4px 8px;
+        }
+        
+        .pixie-navbar .navbar-toggler:focus {
+            box-shadow: none;
+        }
+
+        /* Container and Layout */
+        .pixie-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .pixie-main {
+            min-height: calc(100vh - 200px);
+            padding: 40px 0;
+        }
+        
+        /* Cards */
+        .pixie-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+        
+        .pixie-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+        
+        /* Buttons */
+        .btn-pixie-primary {
+            background: var(--gradient-primary);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-pixie-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            color: white;
+        }
+        
+        .btn-pixie-secondary {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 600;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-pixie-secondary:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* Typography */
+        .pixie-heading {
+            color: var(--text-primary);
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .pixie-text-muted {
+            color: var(--text-secondary);
+        }
+        
+        /* Utilities */
+        .pixie-text-center {
+            text-align: center;
+        }
+        
+        .pixie-mb-3 {
+            margin-bottom: 1rem;
+        }
+        
+        .pixie-mb-4 {
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .pixie-container {
+                padding: 0 16px;
+            }
+            
+            .pixie-main {
+                padding: 20px 0;
+            }
+        }
+
+        /* 네비게이션 항상 표시 */
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <!-- 내비게이션 바 -->
+    <nav class="navbar navbar-expand-lg pixie-navbar default-navbar show" style="display: flex; align-items: center;">
+        <div class="container-fluid pixie-container" style="display: flex; align-items: center;">
+            <a class="navbar-brand" href="/" style="display: flex; align-items: center; padding: 0;">
+                <img src="/static/images/logo.png" alt="" style="height: 40px; width: auto; display: block; visibility: visible; opacity: 1;" onerror="this.style.display='none'; console.error('Logo image failed to load:', this.src)">
+                <span style="display: none;">Pixie</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav" style="display: flex; align-items: center;">
+                <ul class="navbar-nav me-auto" style="margin-bottom: 0;">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/survey">
+                            투자 설문
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/learning">
+                            투자 학습
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/chatbot">
+                            AI 챗봇
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/stock">
+                            주가 예측
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/news">
+                            뉴스/이슈
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/my-investment">
+                            MY 투자
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <a href="/search" class="nav-icon-link">
+                        <img src="/static/images/d1.png" alt="검색" style="width: 20px; height: 20px; display: block;" onerror="console.error('Search icon failed to load:', this.src)">
+                    </a>
+                    <a href="/alerts" class="nav-icon-link position-relative">
+                        <img src="/static/images/d2.png" alt="알림" style="width: 20px; height: 20px; display: block;" onerror="console.error('Alert icon failed to load:', this.src)">
+                        <span id="alert-unread-badge" class="badge bg-danger rounded-pill position-absolute" style="display:none; top: -5px; right: -5px; font-size: 10px;">0</span>
+                    </a>
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle nav-icon-link p-0" href="#" role="button" data-bs-toggle="dropdown" style="padding: 8px !important;">
+                            <img src="/static/images/d3.png" alt="계정" style="width: 20px; height: 20px; display: block;" onerror="console.error('Account icon failed to load:', this.src)">
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/profile">프로필</a></li>
+                            <li><a class="dropdown-item" href="/settings">설정</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/help">도움말</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 메인 컨텐츠 -->
+    {% block header_banner %}{% endblock %}
+    
+    <main class="pixie-main">
+        <div class="pixie-container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="bg-dark text-light py-5 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <h5 class="mb-3">
+                        <span style="color: var(--primary-color); font-weight: 800;">✨ Pixie</span>
+                    </h5>
+                    <p class="text-muted">
+                        AI 기반 투자 분석으로 더 똑똑한 투자 결정을 내려보세요. 
+                        개인화된 포트폴리오와 실시간 시장 분석을 제공합니다.
+                    </p>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-light"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="mb-3">서비스</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="/survey" class="text-muted text-decoration-none">투자 성향 분석</a></li>
+                        <li><a href="/chatbot" class="text-muted text-decoration-none">AI 어드바이저</a></li>
+                        <li><a href="/stock" class="text-muted text-decoration-none">주가 예측</a></li>
+                        <li><a href="/my-investment" class="text-muted text-decoration-none">포트폴리오</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="mb-3">정보</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="/news" class="text-muted text-decoration-none">뉴스 분석</a></li>
+                        <li><a href="/learning" class="text-muted text-decoration-none">투자 학습</a></li>
+                        <li><a href="/alerts" class="text-muted text-decoration-none">알림 서비스</a></li>
+                        <li><a href="/help" class="text-muted text-decoration-none">도움말</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="mb-3">계정</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="/profile" class="text-muted text-decoration-none">프로필</a></li>
+                        <li><a href="/settings" class="text-muted text-decoration-none">설정</a></li>
+                        <li><a href="/privacy" class="text-muted text-decoration-none">개인정보</a></li>
+                        <li><a href="/terms" class="text-muted text-decoration-none">이용약관</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-12 mb-4">
+                    <h6 class="mb-3">지원</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="/contact" class="text-muted text-decoration-none">문의하기</a></li>
+                        <li><a href="/faq" class="text-muted text-decoration-none">자주묻는질문</a></li>
+                        <li><a href="/feedback" class="text-muted text-decoration-none">피드백</a></li>
+                        <li><a href="/status" class="text-muted text-decoration-none">서비스 상태</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <hr class="my-4">
+            
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="text-muted mb-0">
+                        © 2024 Pixie. All rights reserved.
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted mb-0">
+                        <small>데모 서비스입니다. 투자에는 원금 손실 위험이 있습니다.</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- 챗봇 위젯 JS -->
+    <script src="{{ url_for('static', filename='js/chatbot-widget.js') }}?v={{ range(1, 9999) | random }}"></script>
+    
+    <!-- 커스텀 JS -->
+    <script>
+        // 알림 배지 업데이트 함수
+        function updateAlertBadge() {
+            const badge = document.getElementById('alert-unread-badge');
+            if (badge) {
+                // 여기서 실제 알림 수를 가져오는 API 호출
+                const unreadCount = 0; // 임시로 0으로 설정
+                if (unreadCount > 0) {
+                    badge.textContent = unreadCount;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+        
+        // 페이지 로드 시 알림 배지 업데이트
+        document.addEventListener('DOMContentLoaded', updateAlertBadge);
+        
+        // 5분마다 알림 배지 업데이트
+        setInterval(updateAlertBadge, 300000);
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

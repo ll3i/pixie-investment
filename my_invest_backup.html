@@ -1,0 +1,796 @@
+{% extends "layout.html" %}
+
+{% block title %}MY 투자 - Pixie{% endblock %}
+
+{% block extra_css %}
+<style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: #F5F5F5;
+            padding: 80px 0;
+            position: relative;
+        }
+
+        .hero-title {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.3;
+            color: #000;
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            color: #474747;
+            line-height: 27px;
+        }
+
+        /* Section Titles */
+        .section-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            line-height: 46.8px;
+            color: #000;
+        }
+
+        /* Add Button */
+        .add-btn {
+            width: 48px;
+            height: 48px;
+            background: #1454FE;
+            border-radius: 109px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .add-btn:hover {
+            background: #0040C1;
+            transform: scale(1.05);
+        }
+
+        .add-btn i {
+            color: white;
+            font-size: 18px;
+        }
+
+        /* Stock Cards */
+        .stock-card {
+            background: white !important;
+            border: 1px solid #8F8F8F !important;
+            border-radius: 20px !important;
+            padding: 32px 40px !important;
+            cursor: pointer;
+            transition: all 0.3s;
+            height: 339px !important;
+            box-shadow: none !important;
+        }
+
+        .stock-card:hover {
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+        }
+        
+        .stock-category {
+            display: inline-block;
+            padding: 6px 20px !important;
+            border: 1px solid #5E97F4 !important;
+            border-radius: 4px !important;
+            color: #5E97F4 !important;
+            font-size: 18px !important;
+            font-weight: 700 !important;
+            line-height: 27px !important;
+            margin-bottom: 32px !important;
+            background: transparent !important;
+        }
+        
+        .stock-name {
+            font-size: 48px !important;
+            font-weight: 700 !important;
+            color: #000 !important;
+            margin-bottom: 10px !important;
+        }
+        
+        .stock-code {
+            font-size: 20px;
+            color: #8F8F8F;
+            font-weight: 500;
+            line-height: 28px;
+            margin-bottom: 20px;
+        }
+        
+        .stock-price {
+            font-size: 48px !important;
+            font-weight: 700 !important;
+            color: #000 !important;
+            margin-bottom: 10px !important;
+        }
+        
+        .stock-change {
+            font-size: 18px;
+            font-weight: 400;
+            line-height: 27px;
+            margin-bottom: 20px;
+        }
+        
+        .stock-change.up {
+            color: #FE3F14;
+        }
+        
+        .stock-change.down {
+            color: #1454FE;
+        }
+        
+        .stock-news {
+            border-top: 1px solid #E5E5E5;
+            padding-top: 20px;
+            font-size: 18px;
+            color: #000;
+            line-height: 27px;
+        }
+
+
+        /* Custom pagination styles */
+        .custom-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 28px;
+            margin-top: 24px;
+        }
+
+        .custom-pagination i {
+            font-size: 24px;
+            cursor: pointer;
+            opacity: 0.7;
+            color: #8F8F8F;
+        }
+
+        .custom-pagination i:hover {
+            opacity: 1;
+            color: #000;
+        }
+        
+        .custom-pagination span {
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 28px;
+            color: #000;
+        }
+
+        /* Risk Alerts */
+        .risk-alert {
+            background: #F5F5F5;
+            border-radius: 18px;
+            padding: 40px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            height: 163px;
+        }
+        
+        .risk-icon {
+            width: 42px;
+            height: 37.5px;
+            background: #FE3F14;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+        
+        .risk-stock-name {
+            font-size: 36px;
+            font-weight: 700;
+            line-height: 46.8px;
+            color: #000;
+            margin-bottom: 8px;
+        }
+        
+        .risk-title {
+            font-size: 28px;
+            font-weight: 600;
+            line-height: 39.2px;
+            color: #FE3F14;
+            margin-bottom: 16px;
+        }
+        
+        .risk-description {
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 28px;
+            color: #000;
+        }
+        
+        .risk-detail-btn {
+            padding: 22px 50px;
+            background: #CADBFF;
+            border-radius: 8px;
+            color: #1454FE;
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 33.6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .risk-detail-btn:hover {
+            background: #1454FE;
+            color: white;
+        }
+
+
+        /* Survey Report Cards */
+        .survey-card {
+            background: white;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.30);
+            border-radius: 18px;
+            padding: 40px;
+            height: 526px;
+        }
+        
+        .survey-card-title {
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 33.6px;
+            color: #000;
+            margin-bottom: 40px;
+        }
+        
+        .metric-title {
+            font-size: 32px;
+            font-weight: 600;
+            line-height: 44.8px;
+            margin-bottom: 20px;
+        }
+        
+        .metric-title.primary {
+            color: #1454FE;
+        }
+        
+        .metric-title.secondary {
+            color: #5E97F4;
+        }
+        
+        .metric-description {
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 28px;
+            color: #474747;
+            margin-bottom: 40px;
+        }
+        
+        .portfolio-subtitle {
+            font-size: 18px;
+            font-weight: 400;
+            line-height: 27px;
+            color: #8F8F8F;
+            margin-bottom: 40px;
+        }
+        
+        .view-report-btn {
+            padding: 14px 25px;
+            background: #CADBFF;
+            border-radius: 200px;
+            color: #1454FE;
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 33.6px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s;
+        }
+        
+        .view-report-btn:hover {
+            background: #1454FE;
+            color: white;
+        }
+        
+        .portfolio-bar {
+            transition: all 0.3s;
+        }
+        
+        .portfolio-percentage {
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 28px;
+        }
+        
+        .portfolio-label {
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 28px;
+        }
+
+        .survey-card-title {
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 33.6px;
+            color: #000;
+            margin-bottom: 54px;
+        }
+
+        .metric-title {
+            font-size: 32px;
+            font-weight: 600;
+            line-height: 44.8px;
+            margin-bottom: 27px;
+        }
+
+        .metric-title.primary {
+            color: #1454FE;
+        }
+
+        .metric-title.secondary {
+            color: #5E97F4;
+        }
+
+        .progress-bar-container {
+            width: 743px;
+            height: 40px;
+            background: #EBEBEB;
+            border-radius: 100px;
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 25px;
+            border-radius: 100px;
+            position: absolute;
+            top: 50%;
+            left: 8px;
+            transform: translateY(-50%);
+        }
+
+        .progress-bar-fill.primary {
+            background: #1454FE;
+        }
+
+        .progress-bar-fill.secondary {
+            background: #5E97F4;
+        }
+
+        .metric-description {
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 28px;
+            color: #474747;
+            margin-bottom: 48px;
+        }
+
+        .portfolio-subtitle {
+            font-size: 18px;
+            font-weight: 400;
+            line-height: 27px;
+            color: #8F8F8F;
+            margin-bottom: 40px;
+        }
+
+        .portfolio-chart {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            gap: 169px;
+            padding: 20px 0;
+        }
+
+        .portfolio-item {
+            width: 92px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .portfolio-percentage {
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 28px;
+        }
+
+        .portfolio-bar {
+            width: 82px;
+        }
+
+        .portfolio-label {
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 28px;
+        }
+
+        .view-report-btn {
+            padding: 14px 25px;
+            background: #CADBFF;
+            border-radius: 200px;
+            color: #1454FE;
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 33.6px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s;
+            margin-top: 20px;
+            float: right;
+        }
+
+        .view-report-btn:hover {
+            background: #1454FE;
+            color: white;
+        }
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1 class="hero-title">나만의 전략을 세우는<br>맞춤 투자 공간, MY투자</h1>
+                    <p class="hero-subtitle">AI가 분석한 투자 성향과 관심 뉴스까지 한 곳에.<br>픽시와 함께 더 똑똑하고 안정적인 투자 여정을 시작해보세요.</p>
+                </div>
+                <div class="col-lg-4 text-end">
+                    <img src="{{ url_for('static', filename='images/invest1.png') }}" alt="Investment illustration" class="img-fluid" style="max-width: 367px;">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 관심 종목 Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="section-title">
+                <span>관심 종목</span>
+                <div class="add-btn" onclick="showAddWatchlistModal()">
+                    <i class="bi bi-plus text-white"></i>
+                </div>
+            </div>
+            
+            <div class="row g-4" id="watchlist-container">
+                <!-- 동적으로 로드됨 -->
+            </div>
+
+            <div class="custom-pagination">
+                <i class="bi bi-chevron-left" onclick="changeWatchlistPage(-1)"></i>
+                <span id="watchlist-page">1/1</span>
+                <i class="bi bi-chevron-right" onclick="changeWatchlistPage(1)"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- 위험 신호 Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="section-title">위험 신호</h2>
+            
+            <div id="risk-alerts-container">
+                <!-- 동적으로 로드됨 -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 투자 설문 분석 결과 리포트 Section -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="section-title">투자 설문 분석 결과 리포트</h2>
+            
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="survey-card">
+                        <h3 class="survey-card-title">투자 성향 분석지</h3>
+                        
+                        <div class="mb-5">
+                            <h4 class="metric-title primary">위험 감수성</h4>
+                            <div class="progress mb-2" style="height: 40px; background: #EBEBEB; border-radius: 100px;">
+                                <div class="progress-bar" role="progressbar" style="width: 68%; background: #1454FE; height: 25px; margin: 7.5px 0 0 8px; border-radius: 100px;" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <p class="metric-description">중간 수준으로, 적절한 리스크 관리가 필요합니다.</p>
+                        </div>
+
+                        <div class="mb-5">
+                            <h4 class="metric-title secondary">투자 기간</h4>
+                            <div class="progress mb-2" style="height: 40px; background: #EBEBEB; border-radius: 100px;">
+                                <div class="progress-bar" role="progressbar" style="width: 68%; background: #5E97F4; height: 25px; margin: 7.5px 0 0 8px; border-radius: 100px;" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <p class="metric-description">장기 투자 선호, 안정적인 성장 추구</p>
+                        </div>
+
+                        <div class="text-end">
+                            <button class="view-report-btn" onclick="location.href='/survey/results'">
+                                전체 리포트 보기
+                                <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 mb-4">
+                    <div class="survey-card">
+                        <h3 class="survey-card-title">맞춤형 포트폴리오</h3>
+                        <p class="portfolio-subtitle">균형 잡힌 안정추구형 포트폴리오로, 안정성과 성장성 모두를 고려하는 투자자에게 적합합니다.</p>
+                        
+                        <div class="d-flex justify-content-around align-items-end" style="height: 300px; gap: 100px;">
+                            <div class="text-center d-flex flex-column align-items-center">
+                                <span class="portfolio-percentage" style="color: #FF933B;">40%</span>
+                                <div class="portfolio-bar bg-warning" style="width: 82px; height: 225px; background: #FF933B;"></div>
+                                <span class="portfolio-label mt-3" style="color: #FF933B;">주식형 펀드</span>
+                            </div>
+                            <div class="text-center d-flex flex-column align-items-center">
+                                <span class="portfolio-percentage" style="color: #3B7AFF;">30%</span>
+                                <div class="portfolio-bar" style="width: 82px; height: 152px; background: #3B7AFF;"></div>
+                                <span class="portfolio-label mt-3" style="color: #3B7AFF;">채권형 펀드</span>
+                            </div>
+                            <div class="text-center d-flex flex-column align-items-center">
+                                <span class="portfolio-percentage" style="color: #474747;">30%</span>
+                                <div class="portfolio-bar" style="width: 82px; height: 152px; background: #474747;"></div>
+                                <span class="portfolio-label mt-3" style="color: #474747;">현금</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 관심 종목 뉴스 Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="section-title">관심 종목 뉴스</h2>
+            
+            <div id="watchlist-news-container">
+                <!-- 동적으로 로드됨 -->
+            </div>
+
+            <div class="text-end mt-4">
+                <a href="/news" style="color: #1454FE; font-size: 24px; font-weight: 600; text-decoration: underline; line-height: 33.6px;">더 많은 뉴스 보기</a>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- 관심 종목 추가 모달 -->
+    <div class="modal fade" id="addWatchlistModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">관심 종목 추가</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addWatchlistForm">
+                        <div class="mb-3">
+                            <label for="stockSearch" class="form-label">종목 검색</label>
+                            <input type="text" class="form-control" id="stockSearch" placeholder="종목명 또는 종목코드 입력">
+                            <div id="searchResults" class="list-group mt-2"></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+        let watchlistPage = 1;
+        let watchlistData = [];
+        const itemsPerPage = 4;
+
+        // 페이지 로드시 데이터 가져오기
+        $(document).ready(function() {
+            loadWatchlist();
+            loadRiskAlerts();
+            loadWatchlistNews();
+        });
+
+        // 관심 종목 로드
+        function loadWatchlist() {
+            $.get('/api/watchlist', function(data) {
+                watchlistData = data.watchlist || [];
+                renderWatchlist();
+            });
+        }
+
+        // 관심 종목 렌더링
+        function renderWatchlist() {
+            const container = $('#watchlist-container');
+            container.empty();
+            
+            const startIdx = (watchlistPage - 1) * itemsPerPage;
+            const endIdx = startIdx + itemsPerPage;
+            const pageItems = watchlistData.slice(startIdx, endIdx);
+            
+            // 빈 카드 추가하여 4개 고정
+            const emptyCards = itemsPerPage - pageItems.length;
+            for (let i = 0; i < emptyCards; i++) {
+                pageItems.push(null);
+            }
+            
+            pageItems.forEach(stock => {
+                if (stock) {
+                    const changeClass = stock.change_percent > 0 ? 'up' : 'down';
+                    const changeIcon = stock.change_percent > 0 ? '상승' : '하락';
+                    const changePercent = Math.abs(stock.change_percent);
+                    
+                    const card = `
+                        <div class="col-lg-3 col-md-6">
+                            <div class="stock-card" onclick="viewStockDetail('${stock.ticker}')">
+                                <div class="stock-category">${stock.sector}</div>
+                                <h3 class="stock-name">${stock.name}</h3>
+                                <p class="stock-code">종목 코드 ${stock.ticker}</p>
+                                <h4 class="stock-price">${formatNumber(stock.price)}₩</h4>
+                                <p class="stock-change ${changeClass}">${changePercent.toFixed(2)}% ${changeIcon}</p>
+                                <div class="stock-news">
+                                    <i class="bi bi-newspaper me-2"></i>
+                                    ${stock.latest_news || '최신 뉴스 없음'}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.append(card);
+                } else {
+                    // 빈 카드 공간
+                    container.append('<div class="col-lg-3 col-md-6"></div>');
+                }
+            });
+            
+            // 페이지네이션 업데이트
+            const totalPages = Math.ceil(watchlistData.length / itemsPerPage);
+            $('#watchlist-page').text(`${watchlistPage}/${totalPages}`);
+        }
+
+        // 위험 신호 로드
+        function loadRiskAlerts() {
+            $.get('/api/risk-alerts', function(data) {
+                const container = $('#risk-alerts-container');
+                container.empty();
+                
+                data.alerts.forEach(alert => {
+                    const alertHtml = `
+                        <div class="risk-alert">
+                            <div class="risk-icon">
+                                <i class="bi bi-exclamation-triangle"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="row align-items-center">
+                                    <div class="col-auto" style="width: 200px;">
+                                        <h3 class="risk-stock-name mb-0">${alert.stock_name}</h3>
+                                        <p class="stock-code mb-0">종목 코드 ${alert.ticker}</p>
+                                    </div>
+                                    <div class="col">
+                                        <h4 class="risk-title mb-2">${alert.title}</h4>
+                                        <p class="risk-description mb-0">${alert.description}</p>
+                                    </div>
+                                    <div class="col-auto">
+                                        <button class="risk-detail-btn" onclick="viewRiskDetail('${alert.ticker}')">
+                                            자세히 보기
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.append(alertHtml);
+                });
+            });
+        }
+
+        // 관심 종목 뉴스 로드
+        function loadWatchlistNews() {
+            $.get('/api/watchlist-news', function(data) {
+                const container = $('#watchlist-news-container');
+                container.empty();
+                
+                data.news.slice(0, 3).forEach(item => {
+                    const newsHtml = `
+                        <div class="mb-5">
+                            <span class="badge mb-3" style="background: #CADBFF; color: #1454FE; padding: 8px 24px; font-size: 18px; font-weight: 600;">${item.stock_name}</span>
+                            <h3 style="font-size: 28px; font-weight: 600; line-height: 39.2px; color: #000; margin-bottom: 12px;">${item.title}</h3>
+                            <p style="font-size: 18px; font-weight: 400; line-height: 27px; color: #474747; margin-bottom: 12px;">${item.content}</p>
+                            <p style="font-size: 16px; font-weight: 400; line-height: 24px; color: #8F8F8F;">${item.date}</p>
+                        </div>
+                    `;
+                    container.append(newsHtml);
+                });
+            });
+        }
+
+        // 관심 종목 페이지 변경
+        function changeWatchlistPage(direction) {
+            const totalPages = Math.ceil(watchlistData.length / itemsPerPage);
+            watchlistPage += direction;
+            
+            if (watchlistPage < 1) watchlistPage = 1;
+            if (watchlistPage > totalPages) watchlistPage = totalPages;
+            
+            renderWatchlist();
+        }
+
+        // 관심 종목 추가 모달 표시
+        function showAddWatchlistModal() {
+            $('#addWatchlistModal').modal('show');
+        }
+
+        // 종목 검색
+        $('#stockSearch').on('input', function() {
+            const query = $(this).val();
+            if (query.length < 2) {
+                $('#searchResults').empty();
+                return;
+            }
+            
+            $.get('/api/stock-search', { q: query }, function(data) {
+                const results = $('#searchResults');
+                results.empty();
+                
+                data.results.forEach(stock => {
+                    const item = `
+                        <a href="#" class="list-group-item list-group-item-action" 
+                           onclick="addToWatchlist('${stock.ticker}', '${stock.name}')">
+                            <div class="d-flex justify-content-between">
+                                <span>${stock.name}</span>
+                                <small class="text-muted">${stock.ticker}</small>
+                            </div>
+                        </a>
+                    `;
+                    results.append(item);
+                });
+            });
+        });
+
+        // 관심 종목 추가
+        function addToWatchlist(ticker, name) {
+            $.post('/api/watchlist', { ticker: ticker }, function(response) {
+                if (response.success) {
+                    $('#addWatchlistModal').modal('hide');
+                    $('#stockSearch').val('');
+                    $('#searchResults').empty();
+                    loadWatchlist();
+                    alert(`${name}이(가) 관심 종목에 추가되었습니다.`);
+                }
+            });
+        }
+
+        // 종목 상세 보기
+        function viewStockDetail(ticker) {
+            window.location.href = `/stock?ticker=${ticker}`;
+        }
+
+        // 위험 신호 상세 보기
+        function viewRiskDetail(ticker) {
+            window.location.href = `/alerts?ticker=${ticker}`;
+        }
+
+        // 숫자 포맷팅
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+</script>
+{% endblock %}
