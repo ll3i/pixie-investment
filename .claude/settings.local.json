@@ -16,7 +16,16 @@
       "Bash(mkdir:*)",
       "Bash(true)",
       "mcp__github__search_repositories",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(git commit:*)",
+      "Bash(git branch:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "mcp__github__push_files",
+      "mcp__github__create_or_update_file",
+      "Bash(git add:*)",
+      "Bash(git config:*)",
+      "mcp__github__get_file_contents"
     ],
     "deny": []
   }
